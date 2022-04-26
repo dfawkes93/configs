@@ -1,0 +1,33 @@
+#!/bin/bash
+
+function gc() {
+BRANCH=$1
+git worktree list &> /dev/null
+
+if [ $? -ne 0 ]; then
+    echo "Error: Must be used inside git worktree"
+    return 1
+fi
+DIR=`git worktree list | awk 'NR==1{print $1}'` > /dev/null
+if [ -z $BRANCH ]; then
+    BRANCH=$( git worktree list | awk 'NR>1{print $1}' | rg -o '[^/]*$' | fzf --reverse --header="Select branch >")
+else
+    BRANCH=$( git worktree list | awk 'NR>1{print $1}' | rg -o '[^/]*$' | fzf --reverse --header="Select branch >" -q $BRANCH -1 -0)
+fi
+if [ $? -gt 1 ]; then
+    return 1
+elif [ $? -eq 1 ]; then
+    echo "Could not find branch $1"
+    return 1
+fi
+
+fullpath=$DIR/$BRANCH
+
+if [ ! -d "$fullpath" ]; then
+   echo "Cannot move into ${fullpath}"
+   return 1
+fi
+
+cd $fullpath
+return 0
+}
