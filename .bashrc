@@ -106,6 +106,8 @@ alias proj="cd /mnt/c/Users/DylanFawkes/Documents/projects"
 alias scb1="ssh dylanf@pthscb1.21csw.com.au"
 alias jcl1="ssh dylanf@pthjcl1.21csw.com.au"
 alias bro1="ssh dylanf@pthbro1.21csw.com.au"
+alias en3270="c3270 -codepage 1047 ~/21csw.c3270"
+alias jp3270="c3270 -codepage 939 ~/21csw.c3270"
 
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
@@ -123,10 +125,15 @@ if ! shopt -oq posix; then
 fi
 
 export PATH=$PATH:"$HOME/projects/jclexpert/build/"
+export PATH=$PATH:"$HOME/scripts/"
+source "$HOME/scripts/sourced/gc"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+parse_git_branch() {
+     git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+}
 
 if test -z "$DBUS_SESSION_BUS_ADDRESS" ; then
   exec dbus-run-session -- $SHELL
@@ -135,8 +142,13 @@ fi
 gnome-keyring-daemon --start --components=secrets &> /dev/null
 
 export JCLX_NLS="$HOME/projects/jclexpert/build/english.txt"
+set_nls () {
+    export JCLX_NLS="`pwd`/build/english.txt"
+    echo "JCLX_NLS updated to $JCLX_NLS"
+}
 settitle () {
-  export PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@wsl\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+  export PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@wsl\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[01;32m\]$(parse_git_branch)\[\033[00m\]\$ '
+
   echo -ne '\033]0;'"$1"'\a'
 }
 
