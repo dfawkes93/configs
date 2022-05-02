@@ -1,0 +1,14 @@
+c3270.hostname: pthjcl1.21csw.com.au
+c3270.crosshair: false 
+c3270.oversize: 160x62
+c3270.reconnect: true
+c3270.model: 3279-5-E
+c3270.keymap: /home/dylanf/c3270.keymap
+c3270.menuBar: false
+c3270.defaultFgBg: true
+c3270.macros: \
+ swap1: Home() String("swap 1") Enter()\n\
+ swap2: Home() String("swap 2") Enter()\n\
+ swap3: Home() String("swap 3") Enter()\n\
+ swap4: Home() String("swap 4") Enter()\n\
+ swap5: Home() String("swap 5") Enter()
