@@ -16,13 +16,12 @@ else
 fi
 if [ $? -gt 1 ]; then
     return 1
-elif [ $? -eq 1 ]; then
+elif [ -z $BRANCH ]; then
     echo "Could not find branch $1"
     return 1
 fi
 
 fullpath=$DIR/$BRANCH
-
 if [ ! -d "$fullpath" ]; then
    echo "Cannot move into ${fullpath}"
    return 1
