@@ -75,7 +75,7 @@ esac
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
+    alias ls='ls -h --color=auto --group-directories-first'
     #alias dir='dir --color=auto'
     #alias vdir='vdir --color=auto'
 
@@ -104,6 +104,7 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 alias code="code-insiders"
 alias proj="cd /mnt/c/Users/DylanFawkes/Documents/projects"
 alias scb1="ssh dylanf@pthscb1.21csw.com.au"
+alias sch1="ssh dylanf@pthsch1.21csw.com.au"
 alias jcl1="ssh dylanf@pthjcl1.21csw.com.au"
 alias bro1="ssh dylanf@pthbro1.21csw.com.au"
 alias en3270="c3270 -codepage 1047 ~/21csw.c3270"
@@ -142,9 +143,10 @@ fi
 gnome-keyring-daemon --start --components=secrets &> /dev/null
 
 export JCLX_NLS="$HOME/projects/jclexpert/build/english.txt"
-set_nls () {
-    export JCLX_NLS="`pwd`/build/english.txt"
-    echo "JCLX_NLS updated to $JCLX_NLS"
+set_jclx () {
+    ln -sf `pwd`/build/english.txt $HOME/projects/jclexpert/build/english.txt
+    ln -sf `pwd`/build/jclx $HOME/projects/jclexpert/build/jclx
+    echo "JCLX build updated to `pwd`/build"
 }
 settitle () {
   export PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@wsl\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[01;32m\]$(parse_git_branch)\[\033[00m\]\$ '
