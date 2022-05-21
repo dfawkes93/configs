@@ -107,8 +107,8 @@ alias scb1="ssh dylanf@pthscb1.21csw.com.au"
 alias sch1="ssh dylanf@pthsch1.21csw.com.au"
 alias jcl1="ssh dylanf@pthjcl1.21csw.com.au"
 alias bro1="ssh dylanf@pthbro1.21csw.com.au"
-alias en3270="c3270 -codepage 1047 ~/21csw.c3270"
-alias jp3270="c3270 -codepage 939 ~/21csw.c3270"
+alias en3270="c3270 -socket -codepage 1047 ~/21csw.c3270"
+alias jp3270="c3270 -socket -codepage 939 ~/21csw.c3270"
 
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
@@ -143,6 +143,7 @@ fi
 gnome-keyring-daemon --start --components=secrets &> /dev/null
 
 export JCLX_NLS="$HOME/projects/jclexpert/build/english.txt"
+export TERM3270="$HOME/projects/term3270"
 set_jclx () {
     ln -sf `pwd`/build/english.txt $HOME/projects/jclexpert/build/english.txt
     ln -sf `pwd`/build/jclx $HOME/projects/jclexpert/build/jclx
