@@ -154,5 +154,5 @@ settitle () {
 
   echo -ne '\033]0;'"$1"'\a'
 }
-
 settitle Ubuntu
+eval "$(starship init bash)"

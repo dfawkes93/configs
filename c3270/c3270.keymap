@@ -1,5 +1,6 @@
 Ctrl<Key>q: PreviousWord()
 Ctrl<Key>e: NextWord()
+Ctrl<Key>`: Backtab()
 <Key>END: EraseEOF()
 <Key>PPAGE: PF(7)
 <Key>NPAGE: PF(8)
