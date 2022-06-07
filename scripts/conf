@@ -1,0 +1,5 @@
+#!/bin/sh
+
+file=$(fd . -H -d 2 -E '*.png' -E '*.svg' -tf -tl $HOME/.config | fzf )
+[[ -n $file ]] && nvim $file
+
