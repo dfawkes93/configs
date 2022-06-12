@@ -2,7 +2,9 @@ syntax on
 
 call plug#begin('~/.vim/plugged')
 Plug 'christoomey/vim-tmux-navigator'
-Plug 'preservim/nerdtree', { 'on': 'NERDTreeToggle' }
+Plug 'preservim/nerdtree' 
+Plug 'tomasiser/vim-code-dark'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 
 autocmd VimResized * :wincmd =
@@ -10,7 +12,7 @@ nnoremap <leader>- :wincmd _<cr>:wincmd \|<cr>
 nnoremap <leader>= :wincmd =<cr>
 
 autocmd StdinReadPre * let s:std_in=1
-autocmd VimEnter * if argc() == 0 && !exists('s:std_in') | NERDTree | endif
+autocmd VimEnter * if !argc() && !exists('s:std_in') | NERDTree| endif
 
 set noerrorbells
 set tabstop=4 softtabstop=4
@@ -29,5 +31,9 @@ set hidden
 set scrolloff=8
 set sidescrolloff=8
 
-let mapleader = "\<space>"
+command! -nargs=0 Prettier :call CocAction('runCommand', 'prettier.formatFile')
+
+nnoremap <SPACE> <Nop>
+let mapleader = "\<Space>"
+colorscheme codedark
 
