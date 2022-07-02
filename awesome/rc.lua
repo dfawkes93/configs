@@ -8,6 +8,7 @@ local awful = require("awful")
 require("awful.autofocus")
 -- Widget and layout library
 local wibox = require("wibox")
+-- local logout_menu_widget = require("widgets/logout-menu")
 local vicious = require("vicious")
 vicious.contrib = require"vicious.contrib"
 -- Theme handling library
@@ -153,6 +154,21 @@ vicious.register(ramw, vicious.widgets.mem, " $1%", 13)
 fsw = wibox.widget.textbox()
 vicious.register(fsw, vicious.widgets.fs, " ${/ used_gb}GB/${/ avail_gb}GB", 37)
 
+-- Power Button Widget
+pbw =  wibox.widget{
+    {
+        text = " 襤 ",
+        widget = wibox.widget.textbox
+    },
+    top = 2, bottom = 4, left = 2, right = 2,
+        widget = wibox.container.margin
+}
+
+pbw:connect_signal("button::press", function(c, _, _, button) 
+    if button == 1 then awful.spawn.with_shell("$HOME/scripts/logoutopts")
+    end
+end)
+
 -- Create a wibox for each screen and add it
 local taglist_buttons = gears.table.join(
                     awful.button({ }, 1, function(t) t:view_only() end),
@@ -229,7 +245,17 @@ awful.screen.connect_for_each_screen(function(s)
     s.mytaglist = awful.widget.taglist {
         screen  = s,
         filter  = awful.widget.taglist.filter.all,
-        buttons = taglist_buttons
+        buttons = taglist_buttons,
+        layout   = {
+        spacing = theme.wibar_height,
+        spacing_widget = {
+            color  = '#dddddd',
+            -- shape  = gears.shape.powerline,
+            -- widget = wibox.widget.separator,
+            widget = mysep("#344247", right_tri)
+        },
+        layout  = wibox.layout.fixed.horizontal
+    },
     }
 
     -- Create a tasklist widget
@@ -248,6 +274,7 @@ awful.screen.connect_for_each_screen(function(s)
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
           --  mylauncher,
+            s.mylayoutbox,
             s.mytaglist,
             s.mypromptbox,
         },
@@ -265,7 +292,7 @@ awful.screen.connect_for_each_screen(function(s)
             wibox.container.background(mysep(theme.color_4, right_tri), theme.color_3),
             wibox.container.background(datewidget, theme.color_4),
             wibox.container.background(mysep(theme.color_5, right_tri), theme.color_4),
-            wibox.container.background(s.mylayoutbox, theme.color_5)
+            wibox.container.background(pbw, theme.color_5)
         },
     }
 end)
@@ -365,7 +392,7 @@ globalkeys = gears.table.join(
               {description = "restore minimized", group = "client"}),
 
     -- Prompt
-    awful.key({ modkey },            "r",     function () awful.spawn("dmenu_run -h 36")  end,
+    awful.key({ modkey },            "r",     function () awful.spawn("dmenu_run -h 12")  end,
               {description = "run dmenu", group = "launcher"}),
 
     awful.key({ modkey }, "x",

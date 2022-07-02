@@ -42,7 +42,7 @@ theme.hotkeys_modifiers_fg = "#2EB398"
 theme.systray_icon_spacing = 24;
 
 
-theme.wibar_height = dpi(16)
+theme.wibar_height = dpi(20)
 theme.menu_height = dpi(24)
 theme.menu_width  = dpi(200)
 -- Define the image to load

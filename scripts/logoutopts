@@ -1,0 +1,23 @@
+#!/bin/sh
+
+declare -a options=(
+    "None"
+    "Log Out"
+    "Shutdown"
+    "Reboot"
+)
+
+choice=$(printf '%s\n' "${options[@]}" | dmenu -i -p "Select:")
+
+case "$choice" in
+    "Log Out")
+            ;;
+    "Shutdown")
+            poweroff
+            ;;
+    "Reboot")
+            reboot now
+            ;;
+    *)
+        exit 1
+esac
