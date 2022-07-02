@@ -8,22 +8,28 @@ local themes_path = gfs.get_configuration_dir() .. "themes/"
 local themes_default = gfs.get_themes_dir()
 
 theme = {}
-theme.font              = "Fira Code Nerd Font 14"
-theme.notification_font = "Fira Code Nerd Font 14"
+theme.font              = "Fira Code Nerd Font 10"
+theme.notification_font = "Fira Code Nerd Font 12"
 
-theme.useless_gap 	    =  dpi(12)
+theme.useless_gap 	    =  dpi(10)
 
-theme.bg_normal   = "#000000"
-theme.bg_focus    = "#222222"
-theme.bg_urgent   = theme.bg_normal
+theme.fg_normal         = "#FEFEFE"
+theme.fg_focus          = "#32D6FF"
+theme.fg_urgent         = "#C83F11"
+theme.bg_normal         = "#222222"
+theme.bg_focus          = "#222222"
+theme.bg_urgent         = "#3F3F3F"
+
+theme.color_1           = "#344247"
+theme.color_2           = "#537886"
+theme.color_3           = "#47636D"
+theme.color_4           = "#405860"
+theme.color_5           = "#598392"
+
 theme.bg_minimize = theme.bg_normal
 theme.bg_systray  = theme.bg_normal
 
 theme.taglist_fg_occupied = "#00ff00"
-theme.fg_normal   = "#ffffff"
-theme.fg_focus    = "#ffffff"
-theme.fg_urgent   = "#ff0000"
-theme.fg_minimize = "#ffffff"
 
 theme.border_width  = dpi(4)
 theme.border_normal = "#222222"
@@ -35,7 +41,9 @@ theme.hotkeys_modifiers_fg = "#2EB398"
 -- System Tray
 theme.systray_icon_spacing = 24;
 
-theme.menu_height = dpi(32)
+
+theme.wibar_height = dpi(16)
+theme.menu_height = dpi(24)
 theme.menu_width  = dpi(200)
 -- Define the image to load
 theme.titlebar_close_button_normal = themes_default.."default/titlebar/close_normal.png"

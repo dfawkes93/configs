@@ -111,21 +111,47 @@ mykeyboardlayout = awful.widget.keyboardlayout()
 -- {{{ Wibar
 -- Separators 
 local half_spr = wibox.widget.textbox(" ")
+function right_tri(cr, width, height, degree)
+    cr:move_to(theme.wibar_height, 0)
+    cr:line_to(0, theme.wibar_height)
+    cr:line_to(theme.wibar_height, theme.wibar_height)
+    cr:close_path()
+end
+
+local function mysep(color, shape)
+    return wibox.widget {
+        shape        = shape,
+        color        = color,
+        border_width = 0,
+        forced_width = theme.wibar_height,
+        widget       = wibox.widget.separator,
+    }
+end
+
 
 -- Create a textclock widget
 -- mytextclock = wibox.widget.textclock()
 datewidget = wibox.widget.textbox()
-vicious.register(datewidget, vicious.widgets.date, "%b %d, %R")
+vicious.register(datewidget, vicious.widgets.date, " %b %d, %R")
 
 -- Create a volume widget
 vol = wibox.widget.textbox()
 local sink = "alsa_output.usb-Burr-Brown_Japan_Burr-Brown_Japan_PCM2702-00.iec958-stereo"
-vicious.register(vol, vicious.contrib.pulse, "🔊 $1%", 2, sink)
+vicious.register(vol, vicious.contrib.pulse, "墳 $1%", 2, sink)
 vol:buttons(awful.util.table.join(
     awful.button({}, 1, function () vicious.contrib.pulse.toggle(sink) end),
     awful.button({}, 2, function () awful.util.spawn("pavucontrol") end),
     awful.button({}, 4, function () vicious.contrib.pulse.add(5, sink) end),
     awful.button({}, 5, function () vicious.contrib.pulse.add(-5, sink) end)))
+
+-- RAM widget
+ramw = wibox.widget.textbox()
+vicious.cache(vicious.widgets.mem)
+vicious.register(ramw, vicious.widgets.mem, " $1%", 13)
+
+-- FS widget
+fsw = wibox.widget.textbox()
+vicious.register(fsw, vicious.widgets.fs, " ${/ used_gb}GB/${/ avail_gb}GB", 37)
 
 -- Create a wibox for each screen and add it
 local taglist_buttons = gears.table.join(
@@ -230,11 +256,16 @@ awful.screen.connect_for_each_screen(function(s)
             layout = wibox.layout.fixed.horizontal,
             mykeyboardlayout,
             wibox.widget.systray(),
-			vol,
-			half_spr,
-            datewidget,
-			half_spr,
-            s.mylayoutbox,
+            wibox.container.background(mysep(theme.color_1, right_tri), theme.bg_normal),
+            wibox.container.background(fsw, theme.color_1),
+            wibox.container.background(mysep(theme.color_2, right_tri), theme.color_1),
+            wibox.container.background(ramw, theme.color_2),
+            wibox.container.background(mysep(theme.color_3, right_tri), theme.color_2),
+			wibox.container.background(vol, theme.color_3),
+            wibox.container.background(mysep(theme.color_4, right_tri), theme.color_3),
+            wibox.container.background(datewidget, theme.color_4),
+            wibox.container.background(mysep(theme.color_5, right_tri), theme.color_4),
+            wibox.container.background(s.mylayoutbox, theme.color_5)
         },
     }
 end)
@@ -281,6 +312,8 @@ globalkeys = gears.table.join(
               {description = "swap with previous client by index", group = "client"}),
     awful.key({ modkey, "Control" }, "j", function () awful.screen.focus_relative( 1) end,
               {description = "focus the next screen", group = "screen"}),
+    awful.key({ modkey, "Shift" }, "s", function () awful.spawn.with_shell("scrot -s - | xclip -selection clipboard -target image/png") end,
+              {description = "screenshot selection", group = "screen"}),
     awful.key({ modkey, "Control" }, "k", function () awful.screen.focus_relative(-1) end,
               {description = "focus the previous screen", group = "screen"}),
     awful.key({ modkey,           }, "u", awful.client.urgent.jumpto,
@@ -332,8 +365,8 @@ globalkeys = gears.table.join(
               {description = "restore minimized", group = "client"}),
 
     -- Prompt
-    awful.key({ modkey },            "r",     function () awful.screen.focused().mypromptbox:run() end,
-              {description = "run prompt", group = "launcher"}),
+    awful.key({ modkey },            "r",     function () awful.spawn("dmenu_run -h 36")  end,
+              {description = "run dmenu", group = "launcher"}),
 
     awful.key({ modkey }, "x",
               function ()
@@ -584,9 +617,10 @@ client.connect_signal("focus", function(c) c.border_color = beautiful.border_foc
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
+-- Startup tasks
+awful.spawn.with_shell("$HOME/scripts/monitor_setup.sh")
+awful.spawn("/usr/bin/setxkbmap -option ctrl:nocaps")
+awful.spawn("picom")
 -- Background
 awful.spawn.with_shell("$HOME/Pictures/bg/set-wallpaper.sh")
 
--- Startup tasks
-awful.spawn("/usr/bin/setxkbmap -option ctrl:nocaps")
-awful.spawn("picom")
