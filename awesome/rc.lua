@@ -620,7 +620,7 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 -- Startup tasks
 awful.spawn.with_shell("$HOME/scripts/monitor_setup.sh")
 awful.spawn("/usr/bin/setxkbmap -option ctrl:nocaps")
-awful.spawn("picom")
+awful.spawn("picom --experimental-backends")
 -- Background
 awful.spawn.with_shell("$HOME/Pictures/bg/set-wallpaper.sh")
 

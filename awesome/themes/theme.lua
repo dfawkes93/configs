@@ -33,7 +33,7 @@ theme.taglist_fg_occupied = "#00ff00"
 
 theme.border_width  = dpi(4)
 theme.border_normal = "#222222"
-theme.border_focus  = "#161616"
+theme.border_focus  = "#47636D"
 theme.border_marked = "#6510CC"
 
 theme.hotkeys_modifiers_fg = "#2EB398"
