@@ -245,17 +245,6 @@ awful.screen.connect_for_each_screen(function(s)
     s.mytaglist = awful.widget.taglist {
         screen  = s,
         filter  = awful.widget.taglist.filter.all,
-        buttons = taglist_buttons,
-        layout   = {
-        spacing = theme.wibar_height,
-        spacing_widget = {
-            color  = '#dddddd',
-            -- shape  = gears.shape.powerline,
-            -- widget = wibox.widget.separator,
-            widget = mysep("#344247", right_tri)
-        },
-        layout  = wibox.layout.fixed.horizontal
-    },
     }
 
     -- Create a tasklist widget
@@ -274,8 +263,10 @@ awful.screen.connect_for_each_screen(function(s)
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
           --  mylauncher,
-            s.mylayoutbox,
-            s.mytaglist,
+            wibox.container.background(s.mylayoutbox, theme.color_1),
+            wibox.container.background(mysep(theme.color_2, right_tri), theme.color_1),
+            wibox.container.background(s.mytaglist, theme.color_2),
+            wibox.container.background(mysep(theme.bg_normal, right_tri), theme.color_2),
             s.mypromptbox,
         },
         s.mytasklist, -- Middle widget

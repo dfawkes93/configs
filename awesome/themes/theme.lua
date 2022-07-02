@@ -20,6 +20,7 @@ theme.bg_normal         = "#222222"
 theme.bg_focus          = "#222222"
 theme.bg_urgent         = "#3F3F3F"
 
+
 theme.color_1           = "#344247"
 theme.color_2           = "#537886"
 theme.color_3           = "#47636D"
@@ -29,7 +30,9 @@ theme.color_5           = "#598392"
 theme.bg_minimize = theme.bg_normal
 theme.bg_systray  = theme.bg_normal
 
-theme.taglist_fg_occupied = "#00ff00"
+theme.taglist_bg_focus = theme.color_2
+theme.taglist_fg_focus = "#f15946"
+theme.taglist_fg_empty = theme.color_2
 
 theme.border_width  = dpi(4)
 theme.border_normal = "#222222"
