@@ -2,6 +2,9 @@ syntax on
 
 call plug#begin('~/.vim/plugged')
 Plug 'christoomey/vim-tmux-navigator'
+Plug 'tpope/vim-surround'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
 Plug 'preservim/nerdtree' 
 Plug 'tomasiser/vim-code-dark'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -34,6 +37,7 @@ set sidescrolloff=8
 command! -nargs=0 Prettier :call CocAction('runCommand', 'prettier.formatFile')
 
 nnoremap <SPACE> <Nop>
+nmap <silent> gd <Plug>(coc-definition)
 let mapleader = "\<Space>"
 colorscheme codedark
 
