@@ -47,7 +47,9 @@ require('packer').startup(function(use)
 	use 'ryanoasis/vim-devicons'
 	use 'vim-airline/vim-airline'
 	use 'vim-airline/vim-airline-themes'
-	use 'NLKNguyen/papercolor-theme'
+	-- use 'NLKNguyen/papercolor-theme'
+	-- use 'sainnhe/gruvbox-material'
+    use 'ayu-theme/ayu-vim'
     -- Misc
     use 'jose-elias-alvarez/null-ls.nvim'
 
@@ -95,4 +97,8 @@ map("n","<SPACE>","<Nop>")
 
 g.mapleader = "\\<Space>"
 g.airline_powerline_fonts = 1
-cmd "colorscheme PaperColor"
+-- cmd "colorscheme PaperColor"
+-- cmd "colorscheme gruvbox-material"
+cmd "colorscheme ayu"
+cmd("highlight Normal guibg=NONE")
+cmd("highlight clear SignColumn") 
