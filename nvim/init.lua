@@ -67,6 +67,38 @@ require "user.cmp"
 require "user.treesitter"
 require "user.telescope"
 
+-------------------- KEYMAPS -------------------------------
+
+g.mapleader = " "
+g.maplocalleader = " "
+
+-- Normal --
+-- Better window navigation
+map("n", "<C-h>", "<C-w>h")
+map("n", "<C-j>", "<C-w>j")
+map("n", "<C-k>", "<C-w>k")
+map("n", "<C-l>", "<C-w>l")
+
+-- Resize with arrows
+map("n", "<C-Up>", ":resize -2<CR>")
+map("n", "<C-Down>", ":resize +2<CR>")
+map("n", "<C-Left>", ":vertical resize -2<CR>")
+map("n", "<C-Right>", ":vertical resize +2<CR>")
+map("n","<leader>-","wincmd _<cr>:wincmd \\|<cr>")
+map("n","<leader>=","wincmd =<cr>")
+map("n","<SPACE>","<Nop>")
+
+-- Move text up and down
+map("n", "<A-j>", "<Esc>:m .+1<CR>==gi")
+map("n", "<A-k>", "<Esc>:m .-2<CR>==gi")
+
+-- Telescope
+map("n", "<leader>f", "<cmd>Telescope find_files<cr>")
+map("n", "<c-t>", "<cmd>Telescope live_grep<cr>")
+
+-- Insert --
+-- Press jk fast to enter
+map("i", "jk", "<ESC>")
 -------------------- OTHER -------------------------------
 cmd("autocmd VimResized * :wincmd =")
 cmd("autocmd StdinReadPre * let s:std_in=1")
@@ -91,12 +123,9 @@ opt.scrolloff = 8
 opt.sidescrolloff = 8
 opt.background = "dark"
 opt.termguicolors = true
+opt.hlsearch = false
+opt.ignorecase = true
 
-map("n","<leader>-","wincmd _<cr>:wincmd \\|<cr>")
-map("n","<leader>=","wincmd =<cr>")
-map("n","<SPACE>","<Nop>")
-
-g.mapleader = "\\<Space>"
 g.airline_powerline_fonts = 1
 -- cmd "colorscheme PaperColor"
 -- cmd "colorscheme gruvbox-material"
