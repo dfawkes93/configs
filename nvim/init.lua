@@ -21,17 +21,35 @@ end
 
 require('packer').startup(function(use)
   -- My plugins here
-  -- use 'foo1/bar1.nvim'
-	use 'ryanoasis/vim-devicons'
-	use 'vim-airline/vim-airline'
-	use 'vim-airline/vim-airline-themes'
 	use 'christoomey/vim-tmux-navigator'
 	use 'tpope/vim-surround'
 	use 'nvim-lua/plenary.nvim'
 	use 'nvim-telescope/telescope.nvim'
-	use 'preservim/nerdtree' 
+	use 'preservim/nerdtree'
+    -- LSP
+	use 'neovim/nvim-lspconfig'
+	use 'williamboman/nvim-lsp-installer'
+    -- LSP/cmp
+	use 'hrsh7th/nvim-cmp'
+	use 'hrsh7th/cmp-buffer'
+	use 'hrsh7th/cmp-path'
+	use 'hrsh7th/cmp-nvim-lsp'
+	use 'hrsh7th/cmp-cmdline'
+	use 'hrsh7th/cmp-vsnip'
+	use 'hrsh7th/vim-vsnip'
+
+    -- TreeSitter
+    use {
+        'nvim-treesitter/nvim-treesitter',
+        run = ':TSUpdate'
+    }
+    -- Rice
+	use 'ryanoasis/vim-devicons'
+	use 'vim-airline/vim-airline'
+	use 'vim-airline/vim-airline-themes'
 	use 'NLKNguyen/papercolor-theme'
-  -- use 'foo2/bar2.nvim'
+    -- Misc
+    use 'jose-elias-alvarez/null-ls.nvim'
 
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
@@ -40,9 +58,13 @@ require('packer').startup(function(use)
   end
 end)
 
+-------------------- REQUIRES -------------------------------
+
+require "user.lsp"
+require "user.cmp"
+
 -------------------- OTHER -------------------------------
 cmd("autocmd VimResized * :wincmd =")
-
 cmd("autocmd StdinReadPre * let s:std_in=1")
 cmd("autocmd VimEnter * if !argc() && !exists('s:std_in') | NERDTree| endif")
 
@@ -64,6 +86,7 @@ opt.hidden = true
 opt.scrolloff = 8
 opt.sidescrolloff = 8
 opt.background = "dark"
+opt.termguicolors = true
 
 map("n","<leader>-","wincmd _<cr>:wincmd \\|<cr>")
 map("n","<leader>=","wincmd =<cr>")
