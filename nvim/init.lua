@@ -65,6 +65,7 @@ end)
 require "user.lsp"
 require "user.cmp"
 require "user.treesitter"
+require "user.telescope"
 
 -------------------- OTHER -------------------------------
 cmd("autocmd VimResized * :wincmd =")
