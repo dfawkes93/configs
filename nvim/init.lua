@@ -96,6 +96,9 @@ map("n", "<A-k>", "<Esc>:m .-2<CR>==gi")
 map("n", "<leader>f", "<cmd>Telescope find_files<cr>")
 map("n", "<c-t>", "<cmd>Telescope live_grep<cr>")
 
+-- nerdtree
+map ("n", "<leader>b", "<cmd>NERDTreeToggle<cr>")
+
 -- Insert --
 -- Press jk fast to enter
 map("i", "jk", "<ESC>")
