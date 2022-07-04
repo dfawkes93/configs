@@ -8,7 +8,7 @@ local themes_path = gfs.get_configuration_dir() .. "themes/"
 local themes_default = gfs.get_themes_dir()
 
 theme = {}
-theme.font              = "Fira Code Nerd Font 10"
+theme.font              = "Fira Code Nerd Font 12"
 theme.notification_font = "Fira Code Nerd Font 12"
 
 theme.useless_gap 	    =  dpi(10)
@@ -45,7 +45,7 @@ theme.hotkeys_modifiers_fg = "#2EB398"
 theme.systray_icon_spacing = 24;
 
 
-theme.wibar_height = dpi(20)
+theme.wibar_height = dpi(28)
 theme.menu_height = dpi(24)
 theme.menu_width  = dpi(200)
 -- Define the image to load

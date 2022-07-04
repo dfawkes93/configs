@@ -383,7 +383,7 @@ globalkeys = gears.table.join(
               {description = "restore minimized", group = "client"}),
 
     -- Prompt
-    awful.key({ modkey },            "r",     function () awful.spawn("dmenu_run -h 12")  end,
+    awful.key({ modkey },            "r",     function () awful.spawn("dmenu_run -h 24")  end,
               {description = "run dmenu", group = "launcher"}),
 
     awful.key({ modkey }, "x",
@@ -636,9 +636,7 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 -- }}}
 
 -- Startup tasks
-awful.spawn.with_shell("$HOME/scripts/monitor_setup.sh")
 awful.spawn("/usr/bin/setxkbmap -option ctrl:nocaps")
-awful.spawn("picom --experimental-backends")
 -- Background
 awful.spawn.with_shell("$HOME/Pictures/bg/set-wallpaper.sh")
 
