@@ -5,4 +5,4 @@ export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE=$HOME/.cache
 export XDG_DATA=$HOME/.local/share/
 
-export ZDOTDIR=$HOME/config/zsh
+export ZDOTDIR=$HOME/.config/zsh
