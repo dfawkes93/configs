@@ -20,15 +20,19 @@ if fn.empty(fn.glob(install_path)) > 0 then
 end
 
 require('packer').startup(function(use)
-  -- My plugins here
+    -- My plugins here
 	use 'christoomey/vim-tmux-navigator'
 	use 'tpope/vim-surround'
+	use 'preservim/nerdtree'
+
+    -- Telescope
 	use 'nvim-lua/plenary.nvim'
 	use 'nvim-telescope/telescope.nvim'
-	use 'preservim/nerdtree'
+
     -- LSP
 	use 'neovim/nvim-lspconfig'
 	use 'williamboman/nvim-lsp-installer'
+
     -- LSP/cmp
 	use 'hrsh7th/nvim-cmp'
 	use 'hrsh7th/cmp-buffer'
@@ -38,18 +42,24 @@ require('packer').startup(function(use)
 	use 'hrsh7th/cmp-vsnip'
 	use 'hrsh7th/vim-vsnip'
 
+    -- Debug
+    use 'mfussenegger/nvim-dap'
+    use 'rcarriga/nvim-dap-ui'
+    use 'theHamsta/nvim-dap-virtual-text'
+    use 'nvim-telescope/telescope-dap.nvim'
+
     -- TreeSitter
     use {
         'nvim-treesitter/nvim-treesitter',
         run = ':TSUpdate'
     }
+
     -- Rice
 	use 'ryanoasis/vim-devicons'
 	use 'vim-airline/vim-airline'
 	use 'vim-airline/vim-airline-themes'
-	-- use 'NLKNguyen/papercolor-theme'
-	-- use 'sainnhe/gruvbox-material'
     use 'ayu-theme/ayu-vim'
+
     -- Misc
     use 'jose-elias-alvarez/null-ls.nvim'
 
@@ -66,11 +76,22 @@ require "user.lsp"
 require "user.cmp"
 require "user.treesitter"
 require "user.telescope"
+require "user.dap"
 
 -------------------- KEYMAPS -------------------------------
 
 g.mapleader = " "
 g.maplocalleader = " "
+
+-- debug
+map("n", "<F5>", ":lua require'dap'.continue()<CR>")
+map("n", "<F10>", ":lua require'dap'.step_over()<CR>")
+map("n", "<F11>", ":lua require'dap'.step_into()<CR>")
+map("n", "<F12>", ":lua require'dap'.step_out()<CR>")
+map("n", "<leader>b", ":lua require'dap'.toggle_breakpoint()<CR>")
+map("n", "<leader>B", ":lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>")
+map("n", "<leader>lp", ":lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>")
+map("n", "<leader>dr", ":lua require'dap'.repl.open()<CR>")
 
 -- Normal --
 -- Better window navigation
