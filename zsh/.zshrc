@@ -28,6 +28,22 @@ zsh_add_file "zsh-vim-mode"
 zsh_add_file "zsh-aliases"
 zsh_add_file "zsh-prompt"
 
+# Environment variables set everywhere
+export EDITOR="nvim"
+
+case $(uname -n) in
+    "LAPTOP-9LSO5HH7")
+        zsh_add_file "zsh-work"
+        ;;
+    *)
+        export TERMINAL="alacritty"
+
+        # Speedy keys
+        xset r rate 210 40
+        setxkbmap -option ctrl:nocaps
+        ;;
+esac
+
 # Plugins
 zsh_add_plugin "zsh-users/zsh-autosuggestions"
 zsh_add_plugin "zsh-users/zsh-syntax-highlighting"
@@ -38,16 +54,8 @@ zsh_add_plugin "hlissner/zsh-autopair"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 autoload edit-command-line; zle -N edit-command-line
-# Speedy keys
-xset r rate 210 40
-
-# Environment variables set everywhere
-export EDITOR="nvim"
-export TERMINAL="alacritty"
-export BROWSER="brave"
 
 [[ -t 0 && $- = *i* ]] && stty -ixon
 
-setxkbmap -option ctrl:nocaps
 
 eval "$(starship init zsh)"
