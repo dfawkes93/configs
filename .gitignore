@@ -1,5 +1,5 @@
-vim/.vim/.netrwhist
-vim/.vim/plugged/**
-nvim/plugin/**
-zsh/plugins/**
-zsh/.zcompdump
+vim/**/.vim/.netrwhist
+vim/**/.vim/plugged/**
+nvim/**/plugin/**
+zsh/**/plugins/**
+zsh/**/.zcompdump
