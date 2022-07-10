@@ -1,0 +1,9 @@
+#!/bin/sh
+
+for item in */
+do
+    [[ "$item" == "c3270/" ]] && continue
+    [[ "$item" == "windows/" ]] && continue
+    [[ "$item" == "scripts/" ]] && continue
+    [[ -d "$item" ]] && stow -v ${item%/}
+done
