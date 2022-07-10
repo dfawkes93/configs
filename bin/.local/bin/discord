@@ -1,0 +1,3 @@
+#!/bin/sh
+
+chromium "--profile-directory=Profile 1" --app-id=nebbmpibgobljecgkdipmcfonkkmcggn 2>&1 /dev/null

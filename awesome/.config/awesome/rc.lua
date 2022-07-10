@@ -557,7 +557,8 @@ awful.rules.rules = {
           "AlarmWindow",  -- Thunderbird's calendar.
           "ConfigManager",  -- Thunderbird's about:config.
           "pop-up",       -- e.g. Google Chrome's (detached) Developer Tools.
-        }
+        },
+        except_any = { class = { "Chromium" } },
       }, properties = { floating = true }},
 
     -- Add titlebars to normal clients and dialogs
@@ -568,6 +569,12 @@ awful.rules.rules = {
     -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
     --   properties = { screen = 1, tag = "2" } },
+    { rule = { class = "Chromium", name = "YouTube Music" },
+      properties = { screen = monitor_right, tag = "2", floating = false } },
+    { rule = { class = "Chromium", name = "Discord.*" },
+      properties = { screen = monitor_vert, tag = "2", floating = false } },
+    -- { rule = { class = "Chromium", name = "Discord" },
+    --  properties = { screen = monitor_vert, tag = "2", floating = false } },
 }
 -- }}}
 
