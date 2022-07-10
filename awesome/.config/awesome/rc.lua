@@ -56,6 +56,10 @@ terminal = "alacritty"
 editor = os.getenv("EDITOR") or "vi"
 editor_cmd = terminal .. " -e " .. editor
 
+local monitor_vert = 3
+local monitor_left = 1
+local monitor_right = 2
+
 -- Default modkey.
 -- Usually, Mod4 is the key with a logo between Control and Alt.
 -- If you do not like this or do not have such a key,
@@ -320,8 +324,16 @@ globalkeys = gears.table.join(
         end,
         {description = "focus previous by index", group = "client"}
     ),
-    awful.key({ modkey,           }, "w", function () mymainmenu:show() end,
-              {description = "show main menu", group = "awesome"}),
+    --awful.key({ modkey,           }, "w", function () mymainmenu:show() end,
+    --          {description = "show main menu", group = "awesome"}),
+
+    -- Window manip
+    awful.key({ modkey }, "a", function () awful.screen.focus(monitor_vert) end,
+              {description = "Focus left monitor", group = "screen"}),
+    awful.key({ modkey }, "w", function () awful.screen.focus(monitor_left) end,
+              {description = "Focus middle monitor", group = "screen"}),
+    awful.key({ modkey }, "d", function () awful.screen.focus(monitor_right) end,
+              {description = "Focus right monitor", group = "screen"}),
 
     -- Layout manipulation
     awful.key({ modkey, "Shift"   }, "j", function () awful.client.swap.byidx(  1)    end,
@@ -591,6 +603,16 @@ client.connect_signal("manage", function (c)
         -- Prevent clients from being unreachable after screen count changes.
         awful.placement.no_offscreen(c)
     end
+end)
+
+-- turn titlebar on when client is floating
+-------------------------------------------------------------------------------
+client.connect_signal("property::floating", function(c)
+  if c.floating and not c.requests_no_titlebar then
+    awful.titlebar.show(c)
+  else
+    awful.titlebar.hide(c)
+  end
 end)
 
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
