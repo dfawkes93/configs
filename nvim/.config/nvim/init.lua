@@ -77,6 +77,7 @@ require "user.cmp"
 require "user.treesitter"
 require "user.telescope"
 require "user.dap"
+require "user.dapui"
 
 -------------------- KEYMAPS -------------------------------
 
@@ -85,9 +86,9 @@ g.maplocalleader = " "
 
 -- debug
 map("n", "<F5>", ":lua require'dap'.continue()<CR>")
-map("n", "<F10>", ":lua require'dap'.step_over()<CR>")
-map("n", "<F11>", ":lua require'dap'.step_into()<CR>")
-map("n", "<F12>", ":lua require'dap'.step_out()<CR>")
+map("n", "<F7>", ":lua require'dap'.step_over()<CR>")
+map("n", "<F8>", ":lua require'dap'.step_into()<CR>")
+map("n", "<F9>", ":lua require'dap'.step_out()<CR>")
 map("n", "<leader>b", ":lua require'dap'.toggle_breakpoint()<CR>")
 map("n", "<leader>B", ":lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>")
 map("n", "<leader>lp", ":lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>")
@@ -118,7 +119,7 @@ map("n", "<leader>f", "<cmd>Telescope find_files<cr>")
 map("n", "<c-t>", "<cmd>Telescope live_grep<cr>")
 
 -- nerdtree
-map ("n", "<leader>b", "<cmd>NERDTreeToggle<cr>")
+map ("n", "<c-p>", "<cmd>NERDTreeToggle<cr>")
 
 -- Insert --
 -- Press jk fast to enter
