@@ -6,5 +6,7 @@ alias bro1="ssh dylanf@pthbro1.21csw.com.au"
 alias en3270="c3270 -socket -codepage 1047 ~/21csw.c3270"
 alias jp3270="c3270 -socket -codepage 939 ~/21csw.c3270"
 
+source $HOME/scripts/sourced/gc
+
 export PATH="$HOME/jclx:$PATH"
 export JCLX_NLS="$HOME/jclx/nls.txt"
