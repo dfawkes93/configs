@@ -58,5 +58,8 @@ autoload edit-command-line; zle -N edit-command-line
 
 [[ -t 0 && $- = *i* ]] && stty -ixon
 
+if [ -x "$(command -v tmux)" ] && [ -x "$(command -v tmux-sessionizer)" ] && [ -n "${DISPLAY}" ] && [ -z "${TMUX}" ]; then
+    tmux attach || tmux-sessionizer ~ >/dev/null 2>&1
+fi
 
 eval "$(starship init zsh)"
