@@ -1,0 +1,28 @@
+# The $HOME/.gitconfig file must point to this file
+#
+# [include]
+#   path = /home/dylanf/.config/git/.gitconfig
+#
+
+[user]
+	email = dylanf@21csw.com
+	name = Dylan Fawkes
+[core]
+	editor = nvim
+	excludesfile = /home/dylanf/.config/git/.gitignore
+[pull]
+	rebase = true
+[fetch]
+	prune = true
+[alias]
+	status = status -sb
+	stat = status -sb
+[merge]
+    tool = vimdiff
+    conflictstyle = diff3
+[mergetool]
+    keepBackup = false
+    prompt = false
+[mergetool "vimdiff"]
+    cmd = "nvim  -d $MERGED $LOCAL $BASE $REMOTE -c 'wincmd J | wincmd ='"
+
