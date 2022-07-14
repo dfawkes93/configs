@@ -121,6 +121,9 @@ map("n", "<c-t>", "<cmd>Telescope live_grep<cr>")
 -- nerdtree
 map ("n", "<c-p>", "<cmd>NERDTreeToggle<cr>")
 
+-- format
+map("n", "<leader>cf", "<cmd>:lua vim.lsp.buf.formatting()<cr>")
+
 -- Insert --
 -- Press jk fast to enter
 map("i", "jk", "<ESC>")
