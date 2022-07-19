@@ -1,0 +1,7 @@
+format = "${custom.jclx}$all"
+
+[custom.jclx]
+command="echo $JCLX_STATUS | awk '{print $2}'"
+when = "[[ \"$PWD\" == *\"jclexpert\"* ]]"
+symbol = "⚙️"
+style = "bold yellow"
