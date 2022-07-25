@@ -7,6 +7,8 @@ local gfs = require("gears.filesystem")
 local themes_path = gfs.get_configuration_dir() .. "themes/"
 local themes_default = gfs.get_themes_dir()
 
+local machine = require("util/getMachineName").getHostname()
+
 theme = {}
 theme.font              = "Fira Code Nerd Font 12"
 theme.notification_font = "Fira Code Nerd Font 12"

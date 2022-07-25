@@ -8,7 +8,6 @@ local awful = require("awful")
 require("awful.autofocus")
 -- Widget and layout library
 local wibox = require("wibox")
--- local logout_menu_widget = require("widgets/logout-menu")
 local vicious = require("vicious")
 vicious.contrib = require"vicious.contrib"
 -- Theme handling library
@@ -123,55 +122,7 @@ function right_tri(cr, width, height, degree)
     cr:close_path()
 end
 
-local function mysep(color, shape)
-    return wibox.widget {
-        shape        = shape,
-        color        = color,
-        border_width = 0,
-        forced_width = theme.wibar_height,
-        widget       = wibox.widget.separator,
-    }
-end
-
-
--- Create a textclock widget
--- mytextclock = wibox.widget.textclock()
-datewidget = wibox.widget.textbox()
-vicious.register(datewidget, vicious.widgets.date, " %b %d, %R")
-
--- Create a volume widget
-vol = wibox.widget.textbox("墳")
--- local sink = "alsa_output.usb-Burr-Brown_Japan_Burr-Brown_Japan_PCM2702-00.iec958-stereo"
--- vicious.register(vol, vicious.contrib.pulse, "墳 $1%", 2, sink)
--- vol:buttons(awful.util.table.join(
-    -- awful.button({}, 1, function () vicious.contrib.pulse.toggle(sink) end),
-    -- awful.button({}, 2, function () awful.util.spawn("pavucontrol") end),
-    -- awful.button({}, 4, function () vicious.contrib.pulse.add(5, sink) end),
-    -- awful.button({}, 5, function () vicious.contrib.pulse.add(-5, sink) end)))
-
--- RAM widget
-ramw = wibox.widget.textbox()
-vicious.cache(vicious.widgets.mem)
-vicious.register(ramw, vicious.widgets.mem, " $1%", 13)
-
--- FS widget
-fsw = wibox.widget.textbox()
-vicious.register(fsw, vicious.widgets.fs, " ${/ used_gb}GB/${/ avail_gb}GB", 37)
-
--- Power Button Widget
-pbw =  wibox.widget{
-    {
-        text = " 襤 ",
-        widget = wibox.widget.textbox
-    },
-    top = 2, bottom = 4, left = 2, right = 2,
-        widget = wibox.container.margin
-}
-
-pbw:connect_signal("button::press", function(c, _, _, button) 
-    if button == 1 then awful.spawn.with_shell("$HOME/scripts/logoutopts")
-    end
-end)
+local widgetlist = require("./wibar")
 
 -- Create a wibox for each screen and add it
 local taglist_buttons = gears.table.join(
@@ -215,6 +166,7 @@ local tasklist_buttons = gears.table.join(
 
 local function set_wallpaper(s)
     -- Wallpaper
+    beautiful.wallpaper = "/home/egg/Pictures/bg.png"
     if beautiful.wallpaper then
         local wallpaper = beautiful.wallpaper
         -- If wallpaper is a function, call it with the screen
@@ -274,21 +226,8 @@ awful.screen.connect_for_each_screen(function(s)
             s.mypromptbox,
         },
         s.mytasklist, -- Middle widget
-        { -- Right widgets
-            layout = wibox.layout.fixed.horizontal,
-            mykeyboardlayout,
-            wibox.widget.systray(),
-            wibox.container.background(mysep(theme.color_1, right_tri), theme.bg_normal),
-            wibox.container.background(fsw, theme.color_1),
-            wibox.container.background(mysep(theme.color_2, right_tri), theme.color_1),
-            wibox.container.background(ramw, theme.color_2),
-            wibox.container.background(mysep(theme.color_3, right_tri), theme.color_2),
-			wibox.container.background(vol, theme.color_3),
-            wibox.container.background(mysep(theme.color_4, right_tri), theme.color_3),
-            wibox.container.background(datewidget, theme.color_4),
-            wibox.container.background(mysep(theme.color_5, right_tri), theme.color_4),
-            wibox.container.background(pbw, theme.color_5)
-        },
+        widgetlist -- Right widget (imported widgetlist)
+        ,
     }
 end)
 -- }}}
@@ -393,7 +332,7 @@ globalkeys = gears.table.join(
               {description = "restore minimized", group = "client"}),
 
     -- Prompt
-    awful.key({ modkey },            "r",     function () awful.spawn("dmenu_run -h 24")  end,
+    awful.key({ modkey },            "r",     function () awful.spawn(("dmenu_run -h %d"):format(theme.wibar_height))  end,
               {description = "run dmenu", group = "launcher"}),
 
     awful.key({ modkey }, "x",
@@ -664,6 +603,4 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 
 -- Startup tasks
 awful.spawn("/usr/bin/setxkbmap -option ctrl:nocaps")
--- Background
-awful.spawn.with_shell("$HOME/Pictures/bg/set-wallpaper.sh")
 
