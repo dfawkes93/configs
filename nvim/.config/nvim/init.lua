@@ -78,6 +78,7 @@ require "user.treesitter"
 require "user.telescope"
 require "user.dap"
 require "user.dapui"
+require "user.folding"
 
 -------------------- KEYMAPS -------------------------------
 

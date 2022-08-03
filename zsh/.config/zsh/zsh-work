@@ -3,11 +3,12 @@ alias scb1="ssh dylanf@pthscb1.21csw.com.au"
 alias sch1="ssh dylanf@pthsch1.21csw.com.au"
 alias jcl1="ssh dylanf@pthjcl1.21csw.com.au"
 alias bro1="ssh dylanf@pthbro1.21csw.com.au"
+alias trn1="ssh dylanf@pthtrn1.21csw.com.au"
 alias en3270="c3270 -socket -codepage 1047 ~/21csw.c3270"
 alias jp3270="c3270 -socket -codepage 939 ~/21csw.c3270"
 
 export PATH="$HOME/.local/bin:$PATH"
 
 source $HOME/scripts/sourced/gc
-source $HOME/.local/etc/set-jclx.sh
+source $HOME/.local/etc/set-jclx/set-jclx.sh
 

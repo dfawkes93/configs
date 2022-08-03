@@ -51,8 +51,8 @@ dap.configurations.cpp = {
     end,
     cwd = '${workspaceFolder}',
     stopOnEntry = false,
-    args = {"-r", "$HOME/projects/jclexpert/working/samples/rules/rulesamp01.txt",
-            "$HOME/projects/jclexpert/working/parser/test/input/badcard_01.jcl" },
+    args = {"-r", "${workspaceFolder}/samples/rules/rulesamp01.txt",
+            "${workspaceFolder}/parser/test/input/badcard_01.jcl" },
     env = function()
         local variables = {}
         for k, v in pairs(vim.fn.environ()) do
