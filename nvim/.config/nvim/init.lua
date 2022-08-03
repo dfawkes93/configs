@@ -97,6 +97,11 @@ map("n", "<leader>lp", ":lua require'dap'.set_breakpoint(nil, nil, vim.fn.input(
 map("n", "<leader>dr", ":lua require'dap'.repl.open()<CR>")
 
 -- Normal --
+-- Close/write buffers
+map("n", "<leader>q", ":bp<cr>:bd #<cr>")
+map("n", "<leader>w", ":w<cr>")
+--map("n", "<leader>wq", "<leader>w <leader>q")
+
 -- Better window navigation
 map("n", "<C-h>", "<C-w>h")
 map("n", "<C-j>", "<C-w>j")
