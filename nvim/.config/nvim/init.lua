@@ -79,6 +79,7 @@ require "user.telescope"
 require "user.dap"
 require "user.dapui"
 require "user.folding"
+require "user.airline"
 
 -------------------- KEYMAPS -------------------------------
 
@@ -122,6 +123,20 @@ map("n", "<c-t>", "<cmd>Telescope live_grep<cr>")
 -- nerdtree
 map ("n", "<c-p>", "<cmd>NERDTreeToggle<cr>")
 
+-- airline
+map ("n", "<leader>1", "<Plug>AirlineSelectTab1" )
+map ("n", "<leader>2", "<Plug>AirlineSelectTab2" )
+map ("n", "<leader>3", "<Plug>AirlineSelectTab3" )
+map ("n", "<leader>4", "<Plug>AirlineSelectTab4" )
+map ("n", "<leader>5", "<Plug>AirlineSelectTab5" )
+map ("n", "<leader>6", "<Plug>AirlineSelectTab6" )
+map ("n", "<leader>7", "<Plug>AirlineSelectTab7" )
+map ("n", "<leader>8", "<Plug>AirlineSelectTab8" )
+map ("n", "<leader>9", "<Plug>AirlineSelectTab9" )
+map ("n", "<leader>0", "<Plug>AirlineSelectTab0" )
+map ("n", "<leader>-", "<Plug>AirlineSelectPrevTab" )
+map ("n", "<leader>+", "<Plug>AirlineSelectNextTab" )
+--
 -- format
 map("n", "<leader>cf", "<cmd>:lua vim.lsp.buf.formatting()<cr>")
 
@@ -155,7 +170,6 @@ opt.termguicolors = true
 opt.hlsearch = false
 opt.ignorecase = true
 
-g.airline_powerline_fonts = 1
 -- cmd "colorscheme PaperColor"
 -- cmd "colorscheme gruvbox-material"
 cmd "colorscheme ayu"
