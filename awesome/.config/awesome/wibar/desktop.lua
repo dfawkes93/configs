@@ -15,7 +15,7 @@ end
 
 datewidget = require("../widgets/date")
 wifiwidget = require("../widgets/wifi")
-batwidget = require("../widgets/battery")
+-- batwidget = require("../widgets/battery")
 -- vol = require("../widgets/volume")
 ramw = require("../widgets/ram")
 fsw = require("../widgets/fs")
@@ -29,10 +29,8 @@ return { -- Right widgets
             wibox.container.background(mysep(theme.color_2, right_tri), theme.color_1),
             wibox.container.background(ramw, theme.color_2),
             wibox.container.background(mysep(theme.color_3, right_tri), theme.color_2),
-			wibox.container.background(batwidget, theme.color_3),
+            wibox.container.background(datewidget, theme.color_3),
             wibox.container.background(mysep(theme.color_4, right_tri), theme.color_3),
-            wibox.container.background(datewidget, theme.color_4),
-            wibox.container.background(mysep(theme.color_5, right_tri), theme.color_4),
-            wibox.container.background(pbw, theme.color_5)
+            wibox.container.background(pbw, theme.color_4)
         }
 
