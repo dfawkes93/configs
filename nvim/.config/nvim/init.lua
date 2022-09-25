@@ -51,11 +51,12 @@ require('packer').startup(function(use)
 	use 'theHamsta/nvim-dap-virtual-text'
 	use 'nvim-telescope/telescope-dap.nvim'
 
-    -- TreeSitter
-    use {
-        'nvim-treesitter/nvim-treesitter',
-        run = ':TSUpdate'
-    }
+	-- TreeSitter
+	use {
+		'nvim-treesitter/nvim-treesitter',
+		run = ':TSUpdate'
+	}
+    use 'nvim-treesitter/nvim-treesitter-context'
 
 	-- Rice
 	use 'ryanoasis/vim-devicons'
