@@ -20,20 +20,23 @@ if fn.empty(fn.glob(install_path)) > 0 then
 end
 
 require('packer').startup(function(use)
-    -- My plugins here
+	-- My plugins here
 	use 'christoomey/vim-tmux-navigator'
 	use 'tpope/vim-surround'
 	use 'preservim/nerdtree'
 
-    -- Telescope
+	-- Mason
+	use 'williamboman/mason.nvim'
+
+	-- Telescope
 	use 'nvim-lua/plenary.nvim'
 	use 'nvim-telescope/telescope.nvim'
 
-    -- LSP
+	-- LSP
 	use 'neovim/nvim-lspconfig'
-	use 'williamboman/nvim-lsp-installer'
+	use 'williamboman/mason-lspconfig'
 
-    -- LSP/cmp
+	-- LSP/cmp
 	use 'hrsh7th/nvim-cmp'
 	use 'hrsh7th/cmp-buffer'
 	use 'hrsh7th/cmp-path'
@@ -42,11 +45,11 @@ require('packer').startup(function(use)
 	use 'hrsh7th/cmp-vsnip'
 	use 'hrsh7th/vim-vsnip'
 
-    -- Debug
-    use 'mfussenegger/nvim-dap'
-    use 'rcarriga/nvim-dap-ui'
-    use 'theHamsta/nvim-dap-virtual-text'
-    use 'nvim-telescope/telescope-dap.nvim'
+	-- Debug
+	use 'mfussenegger/nvim-dap'
+	use 'rcarriga/nvim-dap-ui'
+	use 'theHamsta/nvim-dap-virtual-text'
+	use 'nvim-telescope/telescope-dap.nvim'
 
     -- TreeSitter
     use {
@@ -54,14 +57,15 @@ require('packer').startup(function(use)
         run = ':TSUpdate'
     }
 
-    -- Rice
+	-- Rice
 	use 'ryanoasis/vim-devicons'
 	use 'vim-airline/vim-airline'
 	use 'vim-airline/vim-airline-themes'
-    use 'ayu-theme/ayu-vim'
+	use 'ayu-theme/ayu-vim'
 
-    -- Misc
-    use 'jose-elias-alvarez/null-ls.nvim'
+	-- Misc
+	use 'jose-elias-alvarez/null-ls.nvim'
+	use 'jayp0521/mason-null-ls.nvim'
 
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
@@ -80,6 +84,7 @@ require "user.dap"
 require "user.dapui"
 require "user.folding"
 require "user.airline"
+require "user.mason"
 
 -------------------- KEYMAPS -------------------------------
 
