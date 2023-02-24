@@ -1,8 +1,8 @@
 c3270.hostname: pthjcl1.21csw.com.au
 c3270.crosshair: false 
-c3270.oversize: 160x62
+c3270.oversize: 120x60
 c3270.reconnect: true
-c3270.model: 3279-5-E
+c3270.model: 3279-4-E
 c3270.keymap: /home/dylanf/c3270.keymap
 c3270.menuBar: false
 c3270.defaultFgBg: true

@@ -1,5 +1,4 @@
-export PATH=$PATH:"$HOME/scripts"
-export NVM_DIR="$HOME/.nvm"
+export NVM_DIR="$HOME/.config/nvm"
 source "$ZDOTDIR/zsh-functions"
 
 # completions
@@ -32,7 +31,7 @@ zsh_add_file "zsh-prompt"
 export EDITOR="nvim"
 
 case $(uname -n) in
-    "LAPTOP-9LSO5HH7")
+    "LAPTOP-9LSO5HH7" | "dylan-thonkpad")
         zsh_add_file "zsh-work"
         ;;
     *)
@@ -49,7 +48,7 @@ zsh_add_plugin "zsh-users/zsh-autosuggestions"
 zsh_add_plugin "zsh-users/zsh-syntax-highlighting"
 zsh_add_plugin "hlissner/zsh-autopair"
 
-eval "`dircolors ~/.config/dircolors`"
+# eval "`dircolors ~/.config/dircolors`"
 
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
