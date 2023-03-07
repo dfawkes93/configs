@@ -1,5 +1,4 @@
-picom --experimental-backends &
-setxkbmap -option ctrl:nocaps
+picom &
 
 export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE=$HOME/.cache
