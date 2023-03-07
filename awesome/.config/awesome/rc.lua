@@ -166,14 +166,16 @@ local tasklist_buttons = gears.table.join(
 
 local function set_wallpaper(s)
     -- Wallpaper
-    beautiful.wallpaper = "/home/egg/Pictures/bg.png"
-    if beautiful.wallpaper then
-        local wallpaper = beautiful.wallpaper
-        -- If wallpaper is a function, call it with the screen
-        if type(wallpaper) == "function" then
-            wallpaper = wallpaper(s)
-        end
-        gears.wallpaper.maximized(wallpaper, s, true)
+    if s.index == monitor_vert then
+        awful.spawn.easy_async([[/bin/sh -c 'ls -d /home/egg/Pictures/bg/vert/* | sort -R | tail -1' ]], function(stdout, stderr, reason, exit_code)
+            --naughty.notify { text = stdout }
+            gears.wallpaper.maximized( string.gsub(stdout, "%s+", ""), s, true )
+        end)
+    else 
+        awful.spawn.easy_async([[/bin/sh -c 'ls -d /home/egg/Pictures/bg/horz/* | sort -R | tail -1' ]], function(stdout, stderr, reason, exit_code)
+            --naughty.notify { text = stdout }
+            gears.wallpaper.maximized( string.gsub(stdout, "%s+", ""), s, true )
+        end)
     end
 end
 
@@ -279,7 +281,7 @@ globalkeys = gears.table.join(
               {description = "swap with previous client by index", group = "client"}),
     awful.key({ modkey, "Control" }, "j", function () awful.screen.focus_relative( 1) end,
               {description = "focus the next screen", group = "screen"}),
-    awful.key({ modkey, "Shift" }, "s", function () awful.spawn.with_shell("scrot -s - | xclip -selection clipboard -target image/png") end,
+    awful.key({ modkey, "Shift" }, "s", function () awful.spawn.with_shell("scrot -s -f - | xclip -selection clipboard -target image/png") end,
               {description = "screenshot selection", group = "screen"}),
     awful.key({ modkey, "Control" }, "k", function () awful.screen.focus_relative(-1) end,
               {description = "focus the previous screen", group = "screen"}),
@@ -351,12 +353,12 @@ globalkeys = gears.table.join(
 )
 
 clientkeys = gears.table.join(
-    awful.key({ modkey,           }, "f",
-        function (c)
-            c.fullscreen = not c.fullscreen
-            c:raise()
-        end,
-        {description = "toggle fullscreen", group = "client"}),
+    --awful.key({ modkey,           }, "f",
+    --    function (c)
+    --        c.fullscreen = not c.fullscreen
+    --        c:raise()
+    --    end,
+    --    {description = "toggle fullscreen", group = "client"}),
     awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                         end,
               {description = "close", group = "client"}),
     awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ,
@@ -377,6 +379,7 @@ clientkeys = gears.table.join(
     awful.key({ modkey,           }, "m",
         function (c)
             c.maximized = not c.maximized
+            c.fullscreen = not c.fullscreen
             c:raise()
         end ,
         {description = "(un)maximize", group = "client"}),
@@ -602,5 +605,5 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 -- }}}
 
 -- Startup tasks
-awful.spawn("/usr/bin/setxkbmap -option ctrl:nocaps")
+-- awful.spawn("/usr/bin/setxkbmap -option ctrl:nocaps")
 
