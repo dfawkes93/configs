@@ -61,7 +61,8 @@ require('packer').startup(function(use)
   use 'tpope/vim-rhubarb'
   use 'lewis6991/gitsigns.nvim'
 
-  use 'navarasu/onedark.nvim' -- Theme inspired by Atom
+  -- use 'navarasu/onedark.nvim' -- Theme inspired by Atom
+  use { "catppuccin/nvim", as = "catppuccin" }
   use 'nvim-lualine/lualine.nvim' -- Fancier statusline
   use 'lukas-reineke/indent-blankline.nvim' -- Add indentation guides even on blank lines
   use 'numToStr/Comment.nvim' -- "gc" to comment visual regions/lines
@@ -134,7 +135,8 @@ vim.wo.signcolumn = 'yes'
 
 -- Set colorscheme
 vim.o.termguicolors = true
-vim.cmd [[colorscheme onedark]]
+--vim.cmd [[colorscheme onedark]]
+vim.cmd.colorscheme "catppuccin"
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
@@ -362,13 +364,7 @@ local servers = {
   -- pyright = {},
   -- rust_analyzer = {},
   tsserver = {},
-
-  sumneko_lua = {
-    Lua = {
-      workspace = { checkThirdParty = false },
-      telemetry = { enable = false },
-    },
-  },
+  lua_ls = {},
 }
 
 -- Setup neovim lua configuration
@@ -412,9 +408,6 @@ require("null-ls").setup(
 --     -- Anything not supported by mason.
 -- }
 )
-
-require "mason-null-ls".setup_handlers() -- If `automatic_setup` is true.
-
 
 -- nvim-cmp setup
 local cmp_autopairs = require('nvim-autopairs.completion.cmp')
