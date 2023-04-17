@@ -353,9 +353,9 @@ globalkeys = gears.table.join(
 )
 
 clientkeys = gears.table.join(
-    awful.key({ modkey,           }, "f",
+    awful.key({ modkey,           }, "m",
         function (c)
-            c.fullscreen = not c.fullscreen
+            c.maximized = not c.maximized
             c:raise()
         end,
         {description = "toggle fullscreen", group = "client"}),
@@ -376,24 +376,12 @@ clientkeys = gears.table.join(
             c.minimized = true
         end ,
         {description = "minimize", group = "client"}),
-    awful.key({ modkey,           }, "m",
+    awful.key({ modkey,  "Shift"  }, "m",
         function (c)
             c.maximized = not c.maximized
             c:raise()
         end ,
-        {description = "(un)maximize", group = "client"}),
-    awful.key({ modkey, "Control" }, "m",
-        function (c)
-            c.maximized_vertical = not c.maximized_vertical
-            c:raise()
-        end ,
-        {description = "(un)maximize vertically", group = "client"}),
-    awful.key({ modkey, "Shift"   }, "m",
-        function (c)
-            c.maximized_horizontal = not c.maximized_horizontal
-            c:raise()
-        end ,
-        {description = "(un)maximize horizontally", group = "client"})
+        {description = "(un)maximize", group = "client"})
 )
 
 -- Bind all key numbers to tags.
@@ -548,7 +536,7 @@ end)
 -- turn titlebar on when client is floating
 -------------------------------------------------------------------------------
 client.connect_signal("property::floating", function(c)
-  if c.floating and not c.requests_no_titlebar then
+  if c.floating and not c.requests_no_titlebar and not c.maximized then
     awful.titlebar.show(c)
   else
     awful.titlebar.hide(c)
