@@ -12,5 +12,3 @@ c3270.macros: \
  swap3: Home() String("swap 3") Enter()\n\
  swap4: Home() String("swap 4") Enter()\n\
  swap5: Home() String("swap 5") Enter()\n\
- find: Script(/home/dylanf/projects/term3270/panels/popup.sh,term3270find)\n\
- cmdsel: Script(/home/dylanf/projects/term3270/util/menu)

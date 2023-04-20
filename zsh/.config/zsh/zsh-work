@@ -7,3 +7,10 @@ alias en3270="c3270 -socket -codepage 1047 ~/21csw.c3270"
 alias jp3270="c3270 -socket -codepage 939 ~/21csw.c3270"
 
 export PATH="$HOME/.local/bin:$PATH"
+
+function start-mainframe-session() {
+	pw=$(secret-tool lookup System $1)
+	tmux new-session -d -s $1 > /dev/null
+	tmux send-keys -t $1 "en3270 -loginmacro 'String(\"$1 DYLANF\") Enter()'" C-m
+	unset pw
+}
