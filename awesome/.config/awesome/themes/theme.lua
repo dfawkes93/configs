@@ -13,7 +13,7 @@ theme = {}
 theme.font              = "Fira Code Nerd Font 12"
 theme.notification_font = "Fira Code Nerd Font 12"
 
-theme.useless_gap 	    =  dpi(10)
+theme.useless_gap 	    =  dpi(8)
 
 theme.fg_normal         = "#FEFEFE"
 theme.fg_focus          = "#32D6FF"

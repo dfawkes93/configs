@@ -1,5 +1,5 @@
-export PATH=$PATH:"$HOME/scripts"
-export NVM_DIR="$HOME/.nvm"
+export NVM_DIR="$HOME/.config/nvm"
+export PATH=$HOME/.config/rofi/scripts:$PATH
 source "$ZDOTDIR/zsh-functions"
 
 # completions
@@ -32,7 +32,7 @@ zsh_add_file "zsh-prompt"
 export EDITOR="nvim"
 
 case $(uname -n) in
-    "LAPTOP-9LSO5HH7")
+    "LAPTOP-9LSO5HH7" | "dylan-thonkpad")
         zsh_add_file "zsh-work"
         ;;
     *)
@@ -50,7 +50,6 @@ zsh_add_plugin "zsh-users/zsh-syntax-highlighting"
 zsh_add_plugin "hlissner/zsh-autopair"
 
 [ -e ~/.config/dircolors ] && eval "`dircolors ~/.config/dircolors`"
-
 
 export NVM_DIR="$HOME/.config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
