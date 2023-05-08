@@ -166,14 +166,16 @@ local tasklist_buttons = gears.table.join(
 
 local function set_wallpaper(s)
     -- Wallpaper
-    beautiful.wallpaper = "/home/dylanf/Pictures/bg.png"
-    if beautiful.wallpaper then
-        local wallpaper = beautiful.wallpaper
-        -- If wallpaper is a function, call it with the screen
-        if type(wallpaper) == "function" then
-            wallpaper = wallpaper(s)
-        end
-        gears.wallpaper.maximized(wallpaper, s, false)
+    if s.index == monitor_vert then
+        awful.spawn.easy_async([[/bin/sh -c 'ls -d /home/egg/Pictures/bg/vert/* | sort -R | tail -1' ]], function(stdout, stderr, reason, exit_code)
+            --naughty.notify { text = stdout }
+            gears.wallpaper.maximized( string.gsub(stdout, "%s+", ""), s, true )
+        end)
+    else 
+        awful.spawn.easy_async([[/bin/sh -c 'ls -d /home/egg/Pictures/bg/horz/* | sort -R | tail -1' ]], function(stdout, stderr, reason, exit_code)
+            --naughty.notify { text = stdout }
+            gears.wallpaper.maximized( string.gsub(stdout, "%s+", ""), s, true )
+        end)
     end
 end
 
@@ -333,13 +335,13 @@ globalkeys = gears.table.join(
               {description = "restore minimized", group = "client"}),
 
     -- Prompt
-    awful.key({ modkey },            "r",     function () awful.spawn("/home/dylanf/.config/rofi/scripts/launcher_t1 drun")  end,
+    awful.key({ modkey },            "r",     function () awful.spawn("/home/egg/.config/rofi/scripts/launcher_t1 drun")  end,
               {description = "run rofi", group = "launcher"}),
-    awful.key({ modkey },            "t",     function () awful.spawn("/home/dylanf/.config/rofi/scripts/launcher_t1 window")  end,
+    awful.key({ modkey },            "t",     function () awful.spawn("/home/egg/.config/rofi/scripts/launcher_t1 window")  end,
               {description = "rofi winselect", group = "launcher"}),
-    awful.key({ modkey },            "d",     function () awful.spawn("/home/dylanf/.config/rofi/scripts/launcher_t1 file")  end,
+    awful.key({ modkey },            "d",     function () awful.spawn("/home/egg/.config/rofi/scripts/launcher_t1 file")  end,
               {description = "rofi files", group = "launcher"}),
-    awful.key({ modkey },            "x",     function () awful.spawn("/home/dylanf/.config/rofi/scripts/powermenu_t1")  end,
+    awful.key({ modkey },            "x",     function () awful.spawn("/home/egg/.config/rofi/scripts/powermenu_t1")  end,
               {description = "rofi power", group = "launcher"}),
 
     awful.key({ modkey, "Control" }, "x",
