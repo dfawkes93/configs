@@ -240,8 +240,8 @@ root.buttons(gears.table.join(
 
 -- {{{ Key bindings
 globalkeys = gears.table.join(
-    awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
-              {description="show help", group="awesome"}),
+    awful.key({ modkey,           }, "c",      hotkeys_popup.show_help,
+              {description="show cheatsheet", group="awesome"}),
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
               {description = "view previous", group = "tag"}),
     awful.key({ modkey,           }, "Right",  awful.tag.viewnext,
@@ -282,7 +282,7 @@ globalkeys = gears.table.join(
               {description = "focus the next screen", group = "screen"}),
     awful.key({ modkey, "Control" }, "]", function () awful.screen.focus_relative(-1) end,
               {description = "focus the previous screen", group = "screen"}),
-    awful.key({ modkey, "Shift" }, "s", function () awful.spawn.with_shell("scrot -s - | xclip -selection clipboard -target image/png") end,
+    awful.key({ modkey, "Shift" }, "s", function () awful.spawn.with_shell("scrot -s -f - | xclip -selection clipboard -target image/png") end,
               {description = "screenshot selection", group = "screen"}),
     awful.key({ modkey,           }, "u", awful.client.urgent.jumpto,
               {description = "jump to urgent client", group = "client"}),
@@ -333,12 +333,16 @@ globalkeys = gears.table.join(
               {description = "restore minimized", group = "client"}),
 
     -- Prompt
-    awful.key({ modkey },            "r",     function () awful.spawn(("rofi -show drun"))  end,
+    awful.key({ modkey },            "r",     function () awful.spawn("/home/dylanf/.config/rofi/scripts/launcher_t1 drun")  end,
               {description = "run rofi", group = "launcher"}),
-    awful.key({ modkey },            "t",     function () awful.spawn(("rofi -show window"))  end,
+    awful.key({ modkey },            "t",     function () awful.spawn("/home/dylanf/.config/rofi/scripts/launcher_t1 window")  end,
               {description = "rofi winselect", group = "launcher"}),
+    awful.key({ modkey },            "d",     function () awful.spawn("/home/dylanf/.config/rofi/scripts/launcher_t1 file")  end,
+              {description = "rofi files", group = "launcher"}),
+    awful.key({ modkey },            "x",     function () awful.spawn("/home/dylanf/.config/rofi/scripts/powermenu_t1")  end,
+              {description = "rofi power", group = "launcher"}),
 
-    awful.key({ modkey }, "x",
+    awful.key({ modkey, "Control" }, "x",
               function ()
                   awful.prompt.run {
                     prompt       = "Run Lua code: ",
@@ -357,6 +361,11 @@ clientkeys = gears.table.join(
     awful.key({ modkey,           }, "m",
         function (c)
             c.maximized = not c.maximized
+            if c.maximized then
+                c.border_width = 0
+            else
+                c.border_width = beautiful.border_width
+            end
             c:raise()
         end,
         {description = "toggle fullscreen", group = "client"}),
@@ -367,9 +376,13 @@ clientkeys = gears.table.join(
     awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end,
               {description = "move to master", group = "client"}),
     awful.key({ modkey,           }, "o",      function (c) c:move_to_screen()               end,
-              {description = "move to screen", group = "client"}),
+              {description = "move to next screen", group = "client"}),
+    awful.key({ modkey, "Shift"   }, "o",      function (c) c:move_to_screen(c.screen.index-1) end,
+              {description = "move to prev screen", group = "client"}),
     awful.key({ modkey, "Shift"   }, "t",      function (c) c.ontop = not c.ontop            end,
               {description = "toggle keep on top", group = "client"}),
+    awful.key({ modkey,           }, "s",      function (c) c.sticky = not c.sticky          end,
+              {description = "toggle sticky",  group = "client"}),
     awful.key({ modkey,           }, "n",
         function (c)
             -- The client currently has the input focus, so it cannot be
