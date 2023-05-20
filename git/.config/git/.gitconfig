@@ -1,15 +1,15 @@
 # The $HOME/.gitconfig file must point to this file
 #
 # [include]
-#   path = /home/dylanf/.config/git/.gitconfig
+#   path = /home/egg/.config/git/.gitconfig
 #
 
 [user]
-	email = dylanf@21csw.com
+	email = dylanfawkes93@gmail.com
 	name = Dylan Fawkes
 [core]
 	editor = nvim
-	excludesfile = /home/dylanf/.config/git/.gitignore
+	excludesfile = /home/egg/.config/git/.gitignore
 [pull]
 	rebase = true
 [fetch]
