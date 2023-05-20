@@ -1,5 +1,6 @@
 export NVM_DIR="$HOME/.config/nvm"
 export PATH=$HOME/.config/rofi/scripts:$PATH
+export PATH=$HOME/.local/bin:$PATH
 source "$ZDOTDIR/zsh-functions"
 
 # completions
