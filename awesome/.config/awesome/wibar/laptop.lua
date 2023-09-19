@@ -1,7 +1,6 @@
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local awful = require("awful")
-beautiful.init(awful.util.get_configuration_dir() .. "themes/theme.lua")
 
 function mysep(color, shape)
     return wibox.widget {

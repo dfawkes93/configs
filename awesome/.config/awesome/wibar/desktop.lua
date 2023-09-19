@@ -1,14 +1,13 @@
 local wibox = require("wibox")
 local beautiful = require("beautiful")
-local awful = require("awful")
-beautiful.init(awful.util.get_configuration_dir() .. "themes/theme.lua")
+local gears = require("awful")
 
 function mysep(color, shape)
     return wibox.widget {
         shape        = shape,
         color        = color,
         border_width = 0,
-        forced_width = theme.wibar_height,
+        forced_width = beautiful.wibar_height,
         widget       = wibox.widget.separator,
     }
 end
@@ -24,13 +23,13 @@ pbw = require("../widgets/power")
 return { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
             wibox.widget.systray(),
-            wibox.container.background(mysep(theme.color_1, right_tri), theme.bg_normal),
-            wibox.container.background(fsw, theme.color_1),
-            wibox.container.background(mysep(theme.color_2, right_tri), theme.color_1),
-            wibox.container.background(ramw, theme.color_2),
-            wibox.container.background(mysep(theme.color_3, right_tri), theme.color_2),
-            wibox.container.background(datewidget, theme.color_3),
-            wibox.container.background(mysep(theme.color_4, right_tri), theme.color_3),
-            wibox.container.background(pbw, theme.color_4)
+            wibox.container.background(mysep(beautiful.yellow, right_tri), beautiful.black),
+            wibox.container.background(fsw, beautiful.yellow),
+            wibox.container.background(mysep(beautiful.red, right_tri), beautiful.yellow),
+            wibox.container.background(ramw, beautiful.red),
+            wibox.container.background(mysep(beautiful.orange, right_tri), beautiful.red),
+            wibox.container.background(datewidget, beautiful.orange),
+            wibox.container.background(mysep(beautiful.white, right_tri), beautiful.orange),
+            wibox.container.background(pbw, beautiful.white)
         }
 
