@@ -255,6 +255,9 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
+-- Other keymaps
+vim.keymap.set('n', "<leader>cf", vim.lsp.buf.format)
+
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
@@ -434,6 +437,21 @@ local servers = {
   -- gopls = {},
   -- pyright = {},
   -- rust_analyzer = {},
+  -- efm = {
+  --   filetypes = {},
+  --   init_options = { documentFormatting = true },
+  --   settings = {
+  --     rootMarkers = { ".git/" },
+  --     languages = {
+  --       lua = {
+  --         { formatCommand = "lua-format -i", formatStdin = true }
+  --       },
+  --       typescript = {
+  --         { formatCommand = "prettier", formatStdin = true }
+  --       }
+  --     }
+  --   }
+  -- },
   tsserver = {},
   html = { filetypes = { 'html', 'twig', 'hbs'} },
 
@@ -517,6 +535,8 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
+
+vim.opt.fileencodings = 'utf8,ibm1047'
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
