@@ -192,7 +192,7 @@ local function set_wallpaper(s)
     --             gears.wallpaper.maximized(string.gsub(stdout, "%s+", ""), s, false)
     --         end)
     -- end
-    gears.wallpaper.maximized("/home/egg/Pictures/bg/uw/stray1.png", nil, false)
+    gears.wallpaper.maximized("/home/dylanf/Pictures/bg.png", s, false)
 end
 
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
@@ -521,13 +521,13 @@ globalkeys = gears.table.join(
         { description = "restore minimized", group = "client" }),
 
     -- Prompt
-    awful.key({ modkey }, "r", function() awful.spawn("/home/egg/.config/rofi/scripts/launcher_t1 drun") end,
+    awful.key({ modkey }, "r", function() awful.spawn("/home/dylanf/.config/rofi/scripts/launcher_t1 drun") end,
         { description = "run rofi", group = "launcher" }),
-    awful.key({ modkey }, "t", function() awful.spawn("/home/egg/.config/rofi/scripts/launcher_t1 window") end,
+    awful.key({ modkey }, "t", function() awful.spawn("/home/dylanf/.config/rofi/scripts/launcher_t1 window") end,
         { description = "rofi winselect", group = "launcher" }),
-    awful.key({ modkey }, "d", function() awful.spawn("/home/egg/.config/rofi/scripts/launcher_t1 file") end,
+    awful.key({ modkey }, "d", function() awful.spawn("/home/dylanf/.config/rofi/scripts/launcher_t1 file") end,
         { description = "rofi files", group = "launcher" }),
-    awful.key({ modkey }, "x", function() awful.spawn("/home/egg/.config/rofi/scripts/powermenu_t1") end,
+    awful.key({ modkey }, "x", function() awful.spawn("/home/dylanf/.config/rofi/scripts/powermenu_t1") end,
         { description = "rofi power", group = "launcher" }),
 
     awful.key({ modkey, "Control" }, "x",
