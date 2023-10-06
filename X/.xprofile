@@ -1,11 +1,5 @@
 picom &
-
-fcitx5 &
-
-# Japanese IME
-export GTK_IM_MODULE=fcitx
-export QT_IM_MODULE=fcitx
-export XMODIFIERS=@im=fcitx
+setxkbmap -option ctrl:nocaps
 
 export XDG_CONFIG_HOME=$HOME/.config
 export XDG_CACHE=$HOME/.cache

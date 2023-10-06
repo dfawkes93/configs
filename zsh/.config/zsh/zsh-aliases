@@ -1,1 +1,2 @@
 alias ls='ls -h --color=auto --group-directories-first'
+alias lsdeps="jq < package.json .dependencies | tr -d '\"^,{}' | column --table"
