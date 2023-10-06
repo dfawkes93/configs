@@ -48,7 +48,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', tag = 'legacy', opts = {} },
+      { 'j-hui/fidget.nvim',       tag = 'legacy', opts = {} },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
@@ -72,7 +72,7 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim', opts = {} },
+  { 'folke/which-key.nvim',   opts = {} },
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -90,16 +90,16 @@ require('lazy').setup({
 
         -- don't override the built-in and fugitive keymaps
         local gs = package.loaded.gitsigns
-        vim.keymap.set({'n', 'v'}, ']c', function()
+        vim.keymap.set({ 'n', 'v' }, ']c', function()
           if vim.wo.diff then return ']c' end
           vim.schedule(function() gs.next_hunk() end)
           return '<Ignore>'
-        end, {expr=true, buffer = bufnr, desc = "Jump to next hunk"})
-        vim.keymap.set({'n', 'v'}, '[c', function()
+        end, { expr = true, buffer = bufnr, desc = "Jump to next hunk" })
+        vim.keymap.set({ 'n', 'v' }, '[c', function()
           if vim.wo.diff then return '[c' end
           vim.schedule(function() gs.prev_hunk() end)
           return '<Ignore>'
-        end, {expr=true, buffer = bufnr, desc = "Jump to previous hunk"})
+        end, { expr = true, buffer = bufnr, desc = "Jump to previous hunk" })
       end,
     },
   },
@@ -112,9 +112,9 @@ require('lazy').setup({
   --     vim.cmd.colorscheme 'onedark'
   --   end,
   -- },
-  --
+
   {
-  'Shatur/neovim-ayu',
+    'Shatur/neovim-ayu',
     priority = 1000,
     opts = {
       Normal = { bg = "None" }
@@ -149,15 +149,15 @@ require('lazy').setup({
   },
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
+  { 'numToStr/Comment.nvim',  opts = {} },
 
   -- Surround
   { 'kylechui/nvim-surround', opts = {} },
   -- Autopairs
   {
-  'windwp/nvim-autopairs',
-  event = "InsertEnter",
-  opts = {},
+    'windwp/nvim-autopairs',
+    event = "InsertEnter",
+    opts = {},
   },
   -- Fuzzy Finder (files, lsp, etc)
   {
@@ -436,24 +436,24 @@ local servers = {
   -- clangd = {},
   -- gopls = {},
   -- pyright = {},
-  -- rust_analyzer = {},
-  -- efm = {
-  --   filetypes = {},
-  --   init_options = { documentFormatting = true },
-  --   settings = {
-  --     rootMarkers = { ".git/" },
-  --     languages = {
-  --       lua = {
-  --         { formatCommand = "lua-format -i", formatStdin = true }
-  --       },
-  --       typescript = {
-  --         { formatCommand = "prettier", formatStdin = true }
-  --       }
-  --     }
-  --   }
-  -- },
+  rust_analyzer = {},
+  efm = {
+    filetypes = {},
+    init_options = { documentFormatting = true },
+    settings = {
+      rootMarkers = { ".git/" },
+      languages = {
+        lua = {
+          { formatCommand = "lua-format -i", formatStdin = true }
+        },
+        typescript = {
+          { formatCommand = "prettier", formatStdin = true }
+        }
+      }
+    }
+  },
   tsserver = {},
-  html = { filetypes = { 'html', 'twig', 'hbs'} },
+  html = { filetypes = { 'html', 'twig', 'hbs' } },
 
   lua_ls = {
     Lua = {
