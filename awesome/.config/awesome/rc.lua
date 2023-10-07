@@ -521,13 +521,13 @@ globalkeys = gears.table.join(
         { description = "restore minimized", group = "client" }),
 
     -- Prompt
-    awful.key({ modkey }, "r", function() awful.spawn("/home/dylanf/.config/rofi/scripts/launcher_t1 drun") end,
+    awful.key({ modkey }, "r", function() awful.spawn.with_shell("$HOME/.config/rofi/scripts/launcher_t1 drun") end,
         { description = "run rofi", group = "launcher" }),
-    awful.key({ modkey }, "t", function() awful.spawn("/home/dylanf/.config/rofi/scripts/launcher_t1 window") end,
+    awful.key({ modkey }, "t", function() awful.spawn.with_shell("$HOME/.config/rofi/scripts/launcher_t1 window") end,
         { description = "rofi winselect", group = "launcher" }),
-    awful.key({ modkey }, "d", function() awful.spawn("/home/dylanf/.config/rofi/scripts/launcher_t1 file") end,
+    awful.key({ modkey }, "d", function() awful.spawn.with_shell("$HOME/.config/rofi/scripts/launcher_t1 file") end,
         { description = "rofi files", group = "launcher" }),
-    awful.key({ modkey }, "x", function() awful.spawn("/home/dylanf/.config/rofi/scripts/powermenu_t1") end,
+    awful.key({ modkey }, "x", function() awful.spawn.with_shell("$HOME/.config/rofi/scripts/powermenu_t1") end,
         { description = "rofi power", group = "launcher" }),
 
     awful.key({ modkey, "Control" }, "x",
