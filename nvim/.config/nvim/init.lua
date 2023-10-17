@@ -189,6 +189,21 @@ require('lazy').setup({
     build = ':TSUpdate',
   },
 
+  {
+    -- Tmux integration
+    "aserowy/tmux.nvim",
+    opts = {}
+  },
+  {
+    'akinsho/toggleterm.nvim',
+    version = "*",
+    opts = {
+      size = 80,
+      shell = "bash",
+      direction = "vertical",
+    }
+  }
+
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
@@ -254,6 +269,9 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+
+-- Toggleterm Map
+vim.keymap.set('n', "<leader>xx", ":ToggleTermSendCurrentLine<CR>")
 
 -- Other keymaps
 vim.keymap.set('n', "<leader>cf", vim.lsp.buf.format)
