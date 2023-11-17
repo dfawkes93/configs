@@ -271,7 +271,20 @@ vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = tr
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 -- Toggleterm Map
+function _G.set_terminal_keymaps()
+  local opts = {buffer = 0}
+  vim.keymap.set('t', '<esc>', [[<C-\><C-n>]], opts)
+  vim.keymap.set('t', '<C-h>', [[<Cmd>wincmd h<CR>]], opts)
+  vim.keymap.set('t', '<C-j>', [[<Cmd>wincmd j<CR>]], opts)
+  vim.keymap.set('t', '<C-k>', [[<Cmd>wincmd k<CR>]], opts)
+  vim.keymap.set('t', '<C-l>', [[<Cmd>wincmd l<CR>]], opts)
+  vim.keymap.set('t', '<C-w>', [[<C-\><C-n><C-w>]], opts)
+end
+vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
 vim.keymap.set('n', "<leader>xx", ":ToggleTermSendCurrentLine<CR>")
+vim.keymap.set('n', "<C-t>", ":ToggleTerm<CR>")
+vim.keymap.set('n', "<leader>t", ":TermSelect<CR>1<CR><CR>i")
+vim.keymap.set('t', "<leader>t", [[<C-\><C-n><C-w>p]])
 
 -- Other keymaps
 vim.keymap.set('n', "<leader>cf", vim.lsp.buf.format)
