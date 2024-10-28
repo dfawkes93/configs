@@ -39,11 +39,6 @@ case $(uname -n) in
         ;;
     *)
         export TERMINAL="alacritty"
-
-        # Speedy keys
-        xset r rate 210 40
-        setxkbmap -option ctrl:nocaps
-        ;;
 esac
 
 # Plugins
