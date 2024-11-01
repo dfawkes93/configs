@@ -34,7 +34,7 @@ zsh_add_file "zsh-prompt"
 export EDITOR="nvim"
 
 case $(uname -n) in
-    "LAPTOP-9LSO5HH7" | "dylan-thonkpad")
+    "LAPTOP-9LSO5HH7" | "dylan-thonkpad" | "dylan-21hh000qau")
         zsh_add_file "zsh-work"
         ;;
     *)
