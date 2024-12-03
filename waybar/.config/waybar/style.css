@@ -5,11 +5,16 @@
     font-size: 12px;
     min-height: 0;
     background: transparent;
-    color: white;
+    color: rgba(230,230,250,1);
+}
+
+#waybar {
+    background: rgba(22, 22, 44, 0.3);
 }
 
 #window {
     font-weight: bold;
+    text-shadow: black 0px 2px 2px;
 }
 
 #workspaces {
@@ -17,14 +22,19 @@
 }
 
 #workspaces button {
-    padding: 0 5px;
+    padding: 0 4px;
     background: transparent;
-    color: white;
     border-top: 2px solid transparent;
 }
 
+#workspaces button label {
+    font-weight: bold;
+    color: @text;
+    font-size: 16px;
+}
+
 #workspaces button.empty {
-    color: red;
+    color: rgba(200, 200, 1, 1);
     border-top: 2px solid red;
 }
 
@@ -33,9 +43,8 @@
     border-top: 2px solid green;
 }
 
-#workspaces button.persistent {
-    color: blue;
-    border-top: 2px solid blue;
+#workspaces button.active label {
+    color: green;
 }
 
 #workspaces button.urgent {
