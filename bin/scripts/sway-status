@@ -11,10 +11,19 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 get_net_text() {
-    local r
-    r=$(nmcli -t -f NAME,TYPE,DEVICE connection show --active 2>/dev/null \
-        | grep -v ":loopback:" | head -1 | cut -d: -f1)
-    if [ -z "$r" ]; then printf '󰤮 offline'; else printf '󰤨 %s' "$r"; fi
+    # Check wifi via iw
+    local ssid
+    ssid=$(iw dev wlan0 link 2>/dev/null | awk '/SSID:/{print $2}')
+    if [ -n "$ssid" ]; then
+        printf '󰤨 %s' "$ssid"
+        return
+    fi
+    # Check ethernet
+    if ip link show enp4s0 2>/dev/null | grep -q "state UP"; then
+        printf '󰈀 eth'
+        return
+    fi
+    printf '󰤮 offline'
 }
 
 get_bat_text() {
@@ -77,7 +86,7 @@ exec 4<&0
 # Open FIFO read-write to keep both ends permanently open
 exec 3<>"$PIPE"
 
-nmcli monitor 2>/dev/null | while IFS= read -r _; do echo . >&3; done &
+ip monitor link 2>/dev/null | while IFS= read -r _; do echo . >&3; done &
 PIDS+=($!)
 
 upower --monitor 2>/dev/null | while IFS= read -r _; do echo . >&3; done &
@@ -96,7 +105,7 @@ while IFS= read -r event; do
     name=$(jq -r '.name // empty' <<< "$event" 2>/dev/null)
     button=$(jq -r '.button // empty' <<< "$event" 2>/dev/null)
     case "$name:$button" in
-        net:1) alacritty -e nmtui >/dev/null 2>&1 & ;;
+        net:1) alacritty -e wpa_cli -i wlan0 >/dev/null 2>&1 & ;;
         vol:1) pavucontrol >/dev/null 2>&1 & ;;
         vol:3) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
         vol:4) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1.2 ;;

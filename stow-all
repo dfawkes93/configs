@@ -1,6 +1,7 @@
 #!/bin/sh
 
 stow_pkg() {
+    [ -L "$2" ] && rm "$2"
     mkdir -p "$2" && stow -v --target="$2" "$1"
 }
 

@@ -33,13 +33,7 @@ zsh_add_file "zsh-prompt"
 # Environment variables set everywhere
 export EDITOR="nvim"
 
-case $(uname -n) in
-    "LAPTOP-9LSO5HH7" | "dylan-thonkpad" | "dylan-21hh000qau")
-        zsh_add_file "zsh-work"
-        ;;
-    *)
-        export TERMINAL="alacritty"
-esac
+zsh_add_file "zsh-local"
 
 # Plugins
 zsh_add_plugin "zsh-users/zsh-autosuggestions"
