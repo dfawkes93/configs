@@ -1,9 +1,28 @@
 #!/bin/sh
 
-for item in */
-do
-    [[ "$item" == "c3270/" ]] && continue
-    [[ "$item" == "windows/" ]] && continue
-    [[ "$item" == "scripts/" ]] && continue
-    [[ -d "$item" ]] && stow -v ${item%/}
-done
+stow_pkg() {
+    mkdir -p "$2" && stow -v --target="$2" "$1"
+}
+
+stow_pkg alacritty  "$HOME/.config/alacritty"
+stow_pkg awesome    "$HOME/.config/awesome"
+stow_pkg bash       "$HOME/.config/bash"
+stow_pkg bin        "$HOME/.local"
+stow_pkg fuzzel     "$HOME/.config/fuzzel"
+stow_pkg git        "$HOME/.config/git"
+stow_pkg hypr       "$HOME/.config/hypr"
+stow_pkg nvim       "$HOME/.config/nvim"
+stow_pkg nwg-bar    "$HOME/.config/nwg-bar"
+stow_pkg picom      "$HOME/.config/picom"
+stow_pkg ranger     "$HOME/.config/ranger"
+stow_pkg rbw        "$HOME/.config/rbw"
+stow_pkg rofi       "$HOME/.config/rofi"
+stow_pkg starship   "$HOME/.config"
+stow_pkg sway       "$HOME/.config/sway"
+stow_pkg tmux       "$HOME/.config/tmux"
+stow_pkg vim        "$HOME/.config/vim"
+stow_pkg waybar     "$HOME/.config/waybar"
+stow_pkg zsh        "$HOME/.config/zsh"
+
+HOST=$(cat /etc/hostname)
+[ -d "host-$HOST" ] && stow -v --target="$HOME" "host-$HOST"
