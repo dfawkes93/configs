@@ -1,0 +1,12 @@
+#!/bin/bash
+
+rbw unlocked || rbw unlock || exit 1
+item=$(rbw ls | fuzzel --dmenu --config=$HOME/.config/fuzzel/rbw.ini)
+case "$?" in
+	0) rbw get $item | wl-copy
+	;;
+	17) rbw get --field username $item | wl-copy
+	;;
+	*)
+	;;
+esac

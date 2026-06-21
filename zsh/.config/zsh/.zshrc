@@ -1,7 +1,7 @@
-export NVM_DIR="$HOME/.config/nvm"
-export PATH=$HOME/.config/rofi/scripts:$PATH
 export PATH=$HOME/.local/bin:$PATH
 export PATH=$HOME/.local/scripts:$PATH
+export PATH=$HOME/.local/go/bin:$PATH
+export GOPATH=$HOME/.local/go
 source "$ZDOTDIR/zsh-functions"
 
 # completions
@@ -48,15 +48,16 @@ zsh_add_plugin "hlissner/zsh-autopair"
 
 [ -e ~/.config/dircolors ] && eval "`dircolors ~/.config/dircolors`"
 
-export NVM_DIR="$HOME/.config/nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-
 autoload edit-command-line; zle -N edit-command-line
 
 [[ -t 0 && $- = *i* ]] && stty -ixon
 
 if [ -x "$(command -v tmux)" ] && [ -x "$(command -v tmux-sessionizer)" ] && [ -n "${DISPLAY}" ] && [ -z "${TMUX}" ]; then
     tmux attach || tmux-sessionizer ~ >/dev/null 2>&1
+fi
+
+if [ -z "$SWAYSOCK" ] && [ -d "/run/user/$UID" ]; then
+    export SWAYSOCK=$(ls /run/user/$UID/sway-ipc.*.sock 2>/dev/null | head -n 1)
 fi
 
 eval "$(starship init zsh)"

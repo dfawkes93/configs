@@ -1,0 +1,114 @@
+#!/bin/bash
+
+PIPE=$(mktemp -u /tmp/sway-status-XXXXXX)
+mkfifo "$PIPE"
+
+PIDS=()
+cleanup() {
+    for pid in "${PIDS[@]}"; do kill "$pid" 2>/dev/null; done
+    rm -f "$PIPE"
+}
+trap cleanup EXIT INT TERM
+
+get_net_text() {
+    local r
+    r=$(nmcli -t -f NAME,TYPE,DEVICE connection show --active 2>/dev/null \
+        | grep -v ":loopback:" | head -1 | cut -d: -f1)
+    if [ -z "$r" ]; then printf '󰤮 offline'; else printf '󰤨 %s' "$r"; fi
+}
+
+get_bat_text() {
+    local bat_dir
+    bat_dir=$(ls -d /sys/class/power_supply/BAT* 2>/dev/null | head -1)
+    [ -z "$bat_dir" ] && return
+    local pct status icon
+    pct=$(cat "$bat_dir/capacity" 2>/dev/null)
+    status=$(cat "$bat_dir/status" 2>/dev/null)
+    if [ "$status" = "Charging" ]; then
+        icon='󰂄'
+    elif [ "$status" = "Full" ]; then
+        icon='󰁹'
+    elif [ "$pct" -le 10 ]; then
+        icon='󰂃'
+    elif [ "$pct" -le 25 ]; then
+        icon='󰁺'
+    elif [ "$pct" -le 50 ]; then
+        icon='󰁼'
+    elif [ "$pct" -le 75 ]; then
+        icon='󰁿'
+    else
+        icon='󰂁'
+    fi
+    printf '%s %d%%' "$icon" "$pct"
+}
+
+get_vol_text() {
+    local out
+    out=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null)
+    if echo "$out" | grep -q "MUTED"; then
+        printf '󰝟 MUTE'
+    else
+        printf '󰕾 %s' "$(echo "$out" | awk '{printf "%.0f%%", $2 * 100}')"
+    fi
+}
+
+block() {
+    jq -cn --arg name "$1" --arg text "$2" \
+        '{"name":$name,"full_text":$text,"separator_block_width":16}'
+}
+
+print_status() {
+    local blocks=()
+    blocks+=("$(block net "$(get_net_text)")")
+    local bat; bat=$(get_bat_text)
+    [ -n "$bat" ] && blocks+=("$(block bat "$bat")")
+    blocks+=("$(block vol "$(get_vol_text)")")
+    blocks+=("$(block clock "$(date +'%Y-%m-%d %H:%M:%S')")")
+    local IFS=,
+    printf '[%s]\n' "${blocks[*]}"
+}
+
+printf '{"version":1,"click_events":true}\n[\n'
+
+# Save swaybar's click pipe — bash redirects stdin to /dev/null for background
+# processes in non-interactive mode, so we must capture it now and pass it explicitly
+exec 4<&0
+
+# Open FIFO read-write to keep both ends permanently open
+exec 3<>"$PIPE"
+
+nmcli monitor 2>/dev/null | while IFS= read -r _; do echo . >&3; done &
+PIDS+=($!)
+
+upower --monitor 2>/dev/null | while IFS= read -r _; do echo . >&3; done &
+PIDS+=($!)
+
+pactl subscribe 2>/dev/null | grep --line-buffered "on sink" | while IFS= read -r _; do echo . >&3; done &
+PIDS+=($!)
+
+while sleep 1; do echo . >&3; done &
+PIDS+=($!)
+
+# Click handler — reads from fd 4 (swaybar's stdin, saved before backgrounds started)
+while IFS= read -r event; do
+    event="${event#,}"
+    if [ -z "$event" ] || [ "$event" = "[" ]; then continue; fi
+    name=$(jq -r '.name // empty' <<< "$event" 2>/dev/null)
+    button=$(jq -r '.button // empty' <<< "$event" 2>/dev/null)
+    case "$name:$button" in
+        net:1) alacritty -e nmtui >/dev/null 2>&1 & ;;
+        vol:1) pavucontrol >/dev/null 2>&1 & ;;
+        vol:3) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+        vol:4) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1.2 ;;
+        vol:5) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
+    esac
+    echo . >&3
+done <&4 &
+PIDS+=($!)
+
+print_status
+
+while IFS= read -r _ <&3; do
+    printf ','
+    print_status
+done
