@@ -1,8 +1,8 @@
 [[clients]]
 hostname = "egg"
 ips = ["192.168.1.103"]
-port = 4243
 position = "left"
 activate_on_startup = true
 
 [authorized_fingerprints]
+"36:2e:09:33:9c:6e:f7:b8:33:93:bd:7b:64:90:41:90:67:88:df:f2:2e:b9:1f:c0:fc:a3:a6:c6:26:e4:1c:44" = "homepc"
