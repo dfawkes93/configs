@@ -23,8 +23,6 @@ yellow = "#F9AF4F"
 background = "#0A0E14"
 foreground = "#B3B1AD"
 
-[font.normal]
-family = "FiraMono Nerd Font"
 
 [font.offset]
 x = -1
@@ -39,5 +37,6 @@ y = 0
 
 [general]
 live_config_reload = true
+import = ["~/.config/alacritty/local.toml"]
 
 [terminal]
