@@ -25,5 +25,7 @@ stow_pkg vim        "$HOME/.config/vim"
 stow_pkg waybar     "$HOME/.config/waybar"
 stow_pkg zsh        "$HOME/.config/zsh"
 
+stow_pkg systemd   "$HOME/.config/systemd"
+
 HOST=$(cat /etc/hostname)
 [ -d "host-$HOST" ] && stow -v --target="$HOME" "host-$HOST"

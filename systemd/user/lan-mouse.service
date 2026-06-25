@@ -1,0 +1,11 @@
+[Unit]
+Description=lan-mouse virtual KVM switch
+After=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/lan-mouse daemon
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target
