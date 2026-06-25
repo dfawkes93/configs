@@ -1,6 +1,5 @@
 [[clients]]
-hostname = "egg"
-ips = ["192.168.1.103"]
+hostname = "egg.local"
 position = "left"
 activate_on_startup = true
 
