@@ -1,0 +1,8 @@
+[[clients]]
+hostname = "egg"
+ips = ["192.168.1.103"]
+port = 4243
+position = "left"
+activate_on_startup = true
+
+[authorized_fingerprints]
