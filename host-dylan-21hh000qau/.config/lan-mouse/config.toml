@@ -1,5 +1,10 @@
 [[clients]]
-hostname = "egg.local"
+# lan-mouse dials the `ips` list directly; it does NOT resolve `hostname` via
+# the system mDNS resolver, so an mDNS .local name does not work here (unlike
+# the pipewire netmic configs). Static IP for now — switch to a name once the
+# planned Pi-hole is serving local DNS records for these hosts.
+hostname = "egg"
+ips = ["192.168.1.103"]
 position = "left"
 activate_on_startup = true
 

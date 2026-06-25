@@ -1,5 +1,9 @@
 [[clients]]
-hostname = "dylan-21hh000qau.local"
+# lan-mouse dials the `ips` list directly; it does NOT resolve `hostname` via
+# the system mDNS resolver. Static IP for now — switch to a name once the
+# planned Pi-hole is serving local DNS records for these hosts.
+hostname = "dylan-21hh000qau"
+ips = ["192.168.1.101"]
 port = 4243
 position = "right"
 activate_on_startup = true
