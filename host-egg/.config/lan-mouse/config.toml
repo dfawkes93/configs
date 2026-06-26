@@ -8,3 +8,8 @@ position = "right"
 activate_on_startup = true
 
 [authorized_fingerprints]
+# Fingerprint of the laptop's lan-mouse cert (~/.config/lan-mouse/lan-mouse.pem).
+# Required for egg to accept the laptop's connection — lan-mouse normally saves
+# this at runtime, but config.toml is a stow symlink so a repo pull wipes it.
+# Committed here so it survives. (Laptop trusts egg's cert as "homepc".)
+"dc:84:43:8b:0a:6d:42:82:05:2e:c2:f4:0b:1c:a0:75:a7:4d:c5:71:ae:12:58:d2:be:db:3c:03:10:c6:90:d3" = "dylan-21hh000qau"
