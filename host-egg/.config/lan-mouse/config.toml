@@ -1,9 +1,9 @@
 [[clients]]
-# lan-mouse dials the `ips` list directly; it does NOT resolve `hostname` via
-# the system mDNS resolver. Static IP for now — switch to a name once the
-# planned Pi-hole is serving local DNS records for these hosts.
-hostname = "dylan-21hh000qau"
-ips = ["192.168.1.101"]
+# lan-mouse resolves `hostname` via unicast DNS (not mDNS). Pi-hole now serves
+# the local `.lan` zone, so the FQDN resolves to a clean IPv4 directly — no
+# static IP needed. (The bare hostname won't work: resolv.conf has no search
+# domain, so the `.lan` suffix must be spelled out.)
+hostname = "dylan-21hh000qau.lan"
 position = "right"
 activate_on_startup = true
 

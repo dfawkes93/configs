@@ -1,10 +1,10 @@
 [[clients]]
-# lan-mouse dials the `ips` list directly; it does NOT resolve `hostname` via
-# the system mDNS resolver, so an mDNS .local name does not work here (unlike
-# the pipewire netmic configs). Static IP for now — switch to a name once the
-# planned Pi-hole is serving local DNS records for these hosts.
-hostname = "egg"
-ips = ["192.168.1.103"]
+# lan-mouse resolves `hostname` via unicast DNS (not mDNS), so an mDNS .local
+# name does not work here (unlike the pipewire netmic configs). Pi-hole now
+# serves the local `.lan` zone, so the FQDN resolves to a clean IPv4 directly —
+# no static IP needed. (The bare hostname won't work: resolv.conf has no search
+# domain, so the `.lan` suffix must be spelled out.)
+hostname = "egg.lan"
 position = "left"
 activate_on_startup = true
 

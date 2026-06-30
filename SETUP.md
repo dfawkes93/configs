@@ -114,9 +114,12 @@ Shares one keyboard/mouse between the laptop and egg.
 - **Packages:** `lan-mouse`.
 - **Enable:** `systemctl --user enable --now lan-mouse` (unit in `systemd/user/`).
 - **Setup beyond stow — important gotchas:**
-  1. **Static IPs, not names.** lan-mouse dials the per-client `ips` list and does **not**
-     resolve the `hostname` field via mDNS (its resolver does unicast DNS only). Keep the
-     static IPs until a real local DNS server (planned Pi-hole) can serve these hostnames.
+  1. **Resolve by name (`.lan` FQDN).** lan-mouse resolves the `hostname` field via
+     unicast DNS only — **not** mDNS, so a `.local` name does not work. Pi-hole now serves
+     the local `.lan` zone, so set `hostname` to the FQDN (`egg.lan`, `dylan-21hh000qau.lan`)
+     and drop the static `ips` list. Use the full `.lan` suffix: `resolv.conf` has no search
+     domain, so a bare hostname is `NXDOMAIN`. (Static `ips` was the stopgap before Pi-hole;
+     it also went stale when the laptop's lease changed.)
   2. **Certificate fingerprints must be committed.** Each peer authorises the other's TLS
      cert fingerprint under `[authorized_fingerprints]`. lan-mouse saves accepted fingerprints
      *into `config.toml`* — but that file is a stow symlink into this repo, so a `git pull`
