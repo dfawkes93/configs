@@ -32,6 +32,7 @@ zsh_add_file "zsh-prompt"
 
 # Environment variables set everywhere
 export EDITOR="nvim"
+export SUDO_ASKPASS="$HOME/.local/scripts/sudo-askpass"
 
 zsh_add_file "zsh-local"
 zsh_add_file "zsh-secrets"
