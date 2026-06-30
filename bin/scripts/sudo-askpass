@@ -2,4 +2,4 @@
 # sudo askpass helper — prompts via zenity GUI dialog.
 # sudo calls this with the prompt as $1 when SUDO_ASKPASS is set and no TTY is available.
 PROMPT="${1:-Password:}"
-zenity --password --title="sudo" --prompt="$PROMPT" 2>/dev/null
+zenity --password --title="sudo: $PROMPT" 2>/dev/null
