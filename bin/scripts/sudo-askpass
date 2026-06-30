@@ -1,13 +1,5 @@
 #!/bin/bash
-# Wrapper to use pinentry-gnome3 as a sudo askpass helper.
+# sudo askpass helper — prompts via zenity GUI dialog.
 # sudo calls this with the prompt as $1 when SUDO_ASKPASS is set and no TTY is available.
 PROMPT="${1:-Password:}"
-
-output=$(printf 'SETDESC Enter sudo password\nSETPROMPT %s\nGETPIN\nBYE\n' "$PROMPT" \
-    | /usr/bin/pinentry-gnome3 2>/dev/null)
-
-password=$(printf '%s\n' "$output" | sed -n 's/^D //p')
-[ -z "$password" ] && exit 1
-
-# Decode %XX encoding that pinentry uses for %, newline, CR, and NUL
-python3 -c "import sys, urllib.parse; print(urllib.parse.unquote(sys.stdin.read().strip()))" <<< "$password"
+zenity --password --title="sudo" --prompt="$PROMPT" 2>/dev/null
