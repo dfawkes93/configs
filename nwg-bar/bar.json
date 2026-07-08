@@ -6,17 +6,17 @@
   },
   {
     "label": "Logout",
-    "exec": "swaymsg exit",
+    "exec": "uwsm stop",
     "icon": "/usr/share/nwg-bar/images/system-log-out.svg"
   },
   {
     "label": "Reboot",
-    "exec": "systemctl reboot",
+    "exec": "systemctl --user stop app-graphical.slice; systemctl reboot",
     "icon": "/usr/share/nwg-bar/images/system-reboot.svg"
   },
   {
     "label": "Shutdown",
-    "exec": "systemctl -i poweroff",
+    "exec": "systemctl --user stop app-graphical.slice; systemctl -i poweroff",
     "icon": "/usr/share/nwg-bar/images/system-shutdown.svg"
   }
 ]
