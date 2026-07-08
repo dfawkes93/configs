@@ -1,0 +1,9 @@
+[screencast]
+# Present a fuzzel list of screens + windows instead of a slurp drag-select.
+# See screencast-chooser.sh in this directory.
+chooser_type=simple
+# $HOME is expanded by xdpw (it runs the chooser via /bin/sh -c); keep this
+# portable rather than hardcoding a home path. The script is stowed from the
+# `bin` package to ~/.local/scripts.
+chooser_cmd=$HOME/.local/scripts/screencast-chooser.sh
+max_fps=30
