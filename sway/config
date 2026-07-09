@@ -18,10 +18,6 @@ set $term alacritty
 # Your preferred application launcher
 set $menu uwsm app -- fuzzel
 
-### Output configuration
-# Machine-specific output settings (monitors, wallpaper) live in host-<hostname>/
-include ~/.config/sway/local.d/*.conf
-
 ### Idle configuration
 #
 # Example configuration:
@@ -265,6 +261,10 @@ bindsym $mod+Escape exec swaylock
 # bindsym Mod4+Up focus up
 # bindsym Mod4+minus scratchpad show
 
+### Output configuration
+# Machine-specific output settings (monitors, wallpaper) live in host-<hostname>/
+include ~/.config/sway/local.d/*.conf
+include /etc/sway/config.d/*
+
 exec uwsm finalize
 
-include /etc/sway/config.d/*
