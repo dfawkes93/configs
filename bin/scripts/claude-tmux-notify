@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Claude Code `Notification` hook: flag the tmux window and raise a desktop
+# toast when a session wants attention.
+#
+# Claude Code pipes the hook payload in on stdin; the field that matters is
+# `notification_type` (permission_prompt | idle_prompt | agent_needs_input |
+# agent_completed | elicitation_dialog | …). Hooks inherit Claude Code's
+# environment, so $TMUX_PANE identifies the pane the session runs in even
+# though the payload itself has no idea tmux exists.
+#
+# The pane's window gets a `@claude_state` user option (wait|done) which
+# tmux.conf renders as a coloured dot in window-status-format; tmux.conf clears
+# it again when you next visit the window. Nothing is flagged when the pane is
+# already the one you are looking at — the status bar draws the current window
+# with window-status-current-format, so the marker would only ever go stale.
+
+set -uo pipefail
+
+payload=$(cat)
+type=$(jq -r '.notification_type // "unknown"' <<<"$payload")
+msg=$(jq -r '.message // ""' <<<"$payload")
+cwd=$(jq -r '.cwd // ""' <<<"$payload")
+
+case "$type" in
+  permission_prompt|agent_needs_input|elicitation_dialog) state=wait; urgency=critical ;;
+  idle_prompt|agent_completed)                            state=done; urgency=normal   ;;
+  *) exit 0 ;;
+esac
+
+location=$(basename "${cwd:-$PWD}")
+tag=$location
+
+if [[ -n ${TMUX_PANE:-} ]] && command -v tmux >/dev/null; then
+  window=$(tmux display-message -p -t "$TMUX_PANE" '#{window_id}' 2>/dev/null)
+  if [[ -n $window ]]; then
+    location=$(tmux display-message -p -t "$TMUX_PANE" '#S:#{window_index} #{window_name}')
+    tag=$window
+    # 1 only when this pane is the active pane of its session's current window.
+    looking=$(tmux display-message -p -t "$TMUX_PANE" '#{&&:#{window_active},#{pane_active}}')
+    [[ $looking == 1 ]] || tmux set-option -w -t "$window" @claude_state "$state"
+  fi
+fi
+
+# x-canonical-private-synchronous makes a second alert for the same window
+# replace the first instead of stacking them up in mako.
+command -v notify-send >/dev/null && notify-send \
+  -a claude -u "$urgency" \
+  -h "string:x-canonical-private-synchronous:claude-$tag" \
+  "Claude · $location" "$msg"
+
+exit 0

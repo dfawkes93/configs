@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Open Claude Code's agent view scoped to the current project.
+#
+# `claude agents` lists background sessions from *every* directory, which is
+# noise when you run one or more sessions per tmux project. `--cwd` limits the
+# list to sessions started under a directory tree (worktrees under
+# .claude/worktrees/ included), so scope it to the git root of wherever we were
+# invoked from. Bound to prefix+a in tmux.conf.
+
+set -uo pipefail
+
+root=$(git rev-parse --show-toplevel 2>/dev/null)
+[[ -n $root ]] || root=$PWD
+
+exec claude agents --cwd "$root"

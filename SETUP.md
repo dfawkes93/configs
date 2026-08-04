@@ -89,6 +89,45 @@ Pick the stack that matches the machine — both are present in the repo.
 
 ---
 
+## Claude Code + tmux
+
+Running a session (or several) per tmux project needs a bit of glue, since Claude Code has
+no idea tmux exists and tmux has no idea Claude Code does. The tmux half lives in
+`tmux/tmux.conf`; the scripts live in `bin/scripts/`; the wiring lives in
+`~/.claude/settings.json`, which is **not stowed** — Claude Code rewrites that file itself
+(`/theme`, `/model`, …), so it is configured by hand:
+
+```json
+{
+  "statusLine": { "type": "command", "command": "~/.local/scripts/claude-statusline" },
+  "hooks": {
+    "SessionStart":  [ { "hooks": [ { "type": "command", "command": "~/.local/scripts/claude-session-title" } ] } ],
+    "Notification":  [ { "hooks": [ { "type": "command", "command": "~/.local/scripts/claude-tmux-notify"  } ] } ]
+  }
+}
+```
+
+- **Packages:** `jq` (all three scripts parse the hook payload), plus a notification daemon
+  such as `mako` for `notify-send`.
+- `claude-agents` (**prefix+a**) — opens the agent view with `--cwd <git root>` so the list
+  is only this project's sessions. Plain `claude agents` is global across every directory.
+- `claude-tmux-notify` — `Notification` hook. Marks the session's tmux window with a
+  `@claude_state` user option (amber = blocked on you, green = finished) which
+  `window-status-format` renders as a dot, and fires a `notify-send` naming the tmux
+  `session:window`. Cleared by the `session-window-changed` / `pane-focus-in` hooks when you
+  visit the window. Relies on hooks inheriting `$TMUX_PANE` from Claude Code.
+- `claude-session-title` — `SessionStart` hook. Titles the session after its tmux session so
+  the agent view rows read as projects. `Ctrl+R` renames one by hand; `Ctrl+S` inside the
+  view toggles grouping between state and directory.
+- `claude-statusline` — shows tmux session / project / branch / model / context %, so two
+  panes side by side are never confused for each other.
+- `allow-passthrough on` and the `extended-keys` lines in `tmux.conf` are required
+  regardless: without them tmux swallows Claude Code's notification and progress escapes,
+  and Shift+Enter submits instead of inserting a newline. Alacritty additionally needs a
+  one-off `/terminal-setup`, run in the host terminal rather than inside tmux.
+
+---
+
 ## Audio — PipeWire (`host-*`)
 
 - **Packages:** `pipewire`, `pipewire-pulse`, `wireplumber` (+ `pipewire-alsa`/`pipewire-jack`

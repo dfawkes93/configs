@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Claude Code `SessionStart` hook: name the session after its tmux project.
+#
+# Sessions otherwise land in `claude agents` under an auto-generated title,
+# which is unhelpful when several projects are in the list at once. tmux
+# sessions here are already named after the project (tmux-sessionizer), so
+# reuse that; fall back to the directory name outside tmux, and show both when
+# they disagree (worktrees, subdirectories, ad-hoc panes).
+
+set -uo pipefail
+
+payload=$(cat)
+cwd=$(jq -r '.cwd // ""' <<<"$payload")
+project=$(basename "${cwd:-$PWD}")
+
+title=$project
+if [[ -n ${TMUX_PANE:-} ]] && command -v tmux >/dev/null; then
+  session=$(tmux display-message -p -t "$TMUX_PANE" '#S' 2>/dev/null)
+  if [[ -n $session && $session != "$project" ]]; then
+    title="$session · $project"
+  elif [[ -n $session ]]; then
+    title=$session
+  fi
+fi
+
+jq -nc --arg t "$title" \
+  '{hookSpecificOutput: {hookEventName: "SessionStart", sessionTitle: $t}}'
