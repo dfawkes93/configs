@@ -13,17 +13,41 @@
 # it again when you next visit the window. Nothing is flagged when the pane is
 # already the one you are looking at — the status bar draws the current window
 # with window-status-current-format, so the marker would only ever go stale.
+#
+# Inside tmux the toast also carries a "default" action, so left-clicking it
+# jumps to the pane that raised it (see tmux-focus-pane). mako's on-button-left
+# already defaults to invoke-default-action, so that needs no mako config.
 
 set -uo pipefail
+
+SELF=$(readlink -f -- "$0")
+
+# Re-entry from the branch below. notify-send's --action implies --wait, so it
+# lives as long as the toast is on screen and prints the chosen action id when
+# it closes; that has to happen detached from the hook, which Claude Code waits
+# on. Handled before reading stdin, since there is no payload on this path.
+if [[ ${1:-} == _wait ]]; then
+  shift
+  urgency=$1 ttl=$2 tag=$3 pane=$4 title=$5 body=$6
+  action=$(notify-send -a claude -u "$urgency" -t "$ttl" \
+    -h "string:x-canonical-private-synchronous:$tag" \
+    --action=default=Focus "$title" "$body" 2>/dev/null)
+  [[ $action == default ]] && exec "${SELF%/*}/tmux-focus-pane" "$pane"
+  exit 0
+fi
 
 payload=$(cat)
 type=$(jq -r '.notification_type // "unknown"' <<<"$payload")
 msg=$(jq -r '.message // ""' <<<"$payload")
 cwd=$(jq -r '.cwd // ""' <<<"$payload")
 
+# Timeouts are set explicitly rather than left to the daemon: notify-send
+# otherwise sends expire_timeout=-1 ("server decides"), and a daemon default of
+# 0 means never expire. The tmux marker is the durable signal, so the toast only
+# needs long enough to catch your eye.
 case "$type" in
-  permission_prompt|agent_needs_input|elicitation_dialog) state=wait; urgency=critical ;;
-  idle_prompt|agent_completed)                            state=done; urgency=normal   ;;
+  permission_prompt|agent_needs_input|elicitation_dialog) state=wait; urgency=critical; ttl=8000 ;;
+  idle_prompt|agent_completed)                            state=done; urgency=normal;   ttl=4000 ;;
   *) exit 0 ;;
 esac
 
@@ -43,9 +67,17 @@ fi
 
 # x-canonical-private-synchronous makes a second alert for the same window
 # replace the first instead of stacking them up in mako.
-command -v notify-send >/dev/null && notify-send \
-  -a claude -u "$urgency" \
-  -h "string:x-canonical-private-synchronous:claude-$tag" \
-  "Claude · $location" "$msg"
+if command -v notify-send >/dev/null; then
+  if [[ -n ${TMUX_PANE:-} ]]; then
+    # Clickable: detached, so it can outlive the hook and wait for the click.
+    setsid -f "$SELF" _wait "$urgency" "$ttl" "claude-$tag" "$TMUX_PANE" \
+      "Claude · $location" "$msg" >/dev/null 2>&1
+  else
+    # Outside tmux there is no pane to jump to, so no action is offered.
+    notify-send -a claude -u "$urgency" -t "$ttl" \
+      -h "string:x-canonical-private-synchronous:claude-$tag" \
+      "Claude · $location" "$msg"
+  fi
+fi
 
 exit 0

@@ -72,6 +72,55 @@ Pick the stack that matches the machine — both are present in the repo.
   the `layer-shell` backend (works fine on wlroots). No action needed unless you want the
   portal backend.
 
+### Notifications (mako)
+- **Packages:** `mako` (Wayland only — the X11 stack has no equivalent here).
+- **Setup beyond stow:** none; sway starts it. `makoctl reload` picks up config edits
+  without a restart.
+- The config exists mainly to set `default-timeout=10000`. mako's own default is **0**,
+  which means notifications never expire and accumulate until dismissed by hand.
+- ⚠️ `ignore-timeout=1` makes mako **discard** the expire timeout a sender asks for and use
+  `default-timeout` for everything. Set it back to `0` if per-sender timeouts should win
+  (`claude-tmux-notify` asks for 8s/4s). Note also that mako's urgency criteria are
+  `low`/`normal`/`critical` — a `[urgency=high]` section matches nothing.
+
+### Notification log (`notify-logd` + bar bell)
+
+Notifications that expire are still readable after the fact: a bell block in the swaybar
+status line shows the unread count, and clicking it opens the backlog.
+
+- **Packages:** `jq`, `fzf`, `alacritty`, `wl-clipboard` (for copy-on-select); `busctl`
+  comes with systemd.
+- **Setup beyond stow:** enable the logger —
+  ```sh
+  systemctl --user daemon-reload
+  systemctl --user enable --now notify-logd     # systemd/user/notify-logd.service
+  ```
+- `bin/scripts/notify-logd` — eavesdrops on the session bus with
+  `busctl --user monitor --json=short`, filtering
+  `org.freedesktop.Notifications.Notify` calls into `~/.local/state/notify-log/log.jsonl`
+  (capped at 500 entries). Eavesdropping rather than asking mako, because mako's history is
+  not queryable — `makoctl` can only `restore` the single newest entry, and `max-history`
+  defaults to 5. A notification carrying `x-canonical-private-synchronous` replaces the
+  previous entry with the same tag rather than stacking, so volume OSDs and repeated alerts
+  from one Claude session don't bury the rest.
+- `bin/scripts/notify-log` — `count` (polled by the bar), `show` (opens the picker),
+  `mark-read`, `clear`. Read state is a high-water timestamp in
+  `~/.local/state/notify-log/last-read`; closing the picker marks everything read.
+- The picker is **fzf in a floating terminal**, not fuzzel: reading a message you missed
+  needs fzf's `--preview` pane to show the full wrapped body beside the list, where
+  fuzzel's dmenu mode can only show one truncated line per entry. In the picker, enter
+  copies the selected entry, `ctrl-r` marks all read, `ctrl-x` clears the log.
+  - It launches via `/bin/sh -c`, deliberately not the login shell, because `.zshrc`
+    auto-attaches tmux whenever `DISPLAY` is set and `TMUX` is empty — this window must not
+    land inside a tmux session.
+  - `sway/config` floats and centres it by `app_id`:
+    `for_window [app_id="notify-log"] floating enable, resize set 1000 620, move position center`.
+    Note that this comma-separated form only works in the config file; passing the same
+    string to `swaymsg` splits it into three immediate commands instead of one rule.
+- `bin/scripts/sway-status` — `notif` block: `󰂚 N` unread / `󰂜` clear. Left click opens the
+  picker, right click marks all read. It refreshes off the existing 1s tick, so no extra
+  wake plumbing was needed.
+
 ### X11 (awesome)
 - **Packages:** `awesome`, `picom` (compositor), `rofi` (launcher), plus a terminal.
 - **Setup beyond stow:** none beyond the WM picking up the config.
@@ -116,6 +165,17 @@ no idea tmux exists and tmux has no idea Claude Code does. The tmux half lives i
   `window-status-format` renders as a dot, and fires a `notify-send` naming the tmux
   `session:window`. Cleared by the `session-window-changed` / `pane-focus-in` hooks when you
   visit the window. Relies on hooks inheriting `$TMUX_PANE` from Claude Code.
+  - **Left-clicking the toast jumps to the pane that raised it.** The toast carries a
+    `default` action, and mako's `on-button-left` already defaults to
+    `invoke-default-action`, so this needs no mako config. `notify-send --action` implies
+    `--wait`, so the hook re-enters itself (`_wait`) under `setsid` — otherwise Claude Code
+    would block for the lifetime of the toast. Outside tmux no action is offered, since
+    there is no pane to jump to.
+- `tmux-focus-pane <pane-id>` — does the jumping, and is useful on its own. Selects the
+  pane and window, switches a client over if that session is detached, then raises the sway
+  window. That last step needs an ancestry walk: sway reports the pid of the process that
+  created the surface (the terminal), not the tmux client inside it, so it walks up from
+  `#{client_pid}` until an ancestor matches a container pid, then focuses by `con_id`.
 - `claude-session-title` — `SessionStart` hook. Titles the session after its tmux session so
   the agent view rows read as projects. `Ctrl+R` renames one by hand; `Ctrl+S` inside the
   view toggles grouping between state and directory.
@@ -212,7 +272,22 @@ Stowed to `~/.config/systemd/`. After stowing, reload and enable what you need:
 systemctl --user daemon-reload
 systemctl --user enable --now lan-mouse        # systemd/user/lan-mouse.service
 ```
-- `systemd/maccy.service` — _TODO: document what this runs and whether it's user/system._
+- `systemd/maccy.service` — **system unit, not user.** Re-asserts the registered MAC
+  address on the `21CS_SECURE_WIFI` NM profile. **Setup beyond stow:** `stow-all` stows
+  `systemd/` to `~/.config/systemd/`, where a system unit is inert — it must be installed
+  as root instead:
+  ```sh
+  sudo install -m644 systemd/maccy.service /etc/systemd/system/maccy.service
+  sudo systemctl daemon-reload
+  sudo systemctl enable --now maccy.service
+  ```
+  Symptom if missing: the office wifi refuses to authenticate. wpa_supplicant logs
+  `CTRL-EVENT-AUTH-REJECT … auth_type=3 auth_transaction=1 status_code=37` at the SAE
+  commit from every AP on every band, even at -38 dBm, and open auth for WPA2-PSK times
+  out silently. The rejection happens before any credential check, so it looks like
+  anything except a MAC problem — the network authorises by registered MAC.
+  Note a randomised MAC failing the same way does **not** rule this out: under an
+  allowlist every unregistered MAC fails identically.
 
 ---
 

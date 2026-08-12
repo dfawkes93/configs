@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Bring a tmux pane to the front from outside tmux, given its pane id.
+#
+# Three things have to happen, and only the first is obvious:
+#   1. select the pane and its window inside tmux;
+#   2. if no client is attached to that pane's session, switch one over — the
+#      session may well be detached (one terminal, several projects);
+#   3. raise the sway window the client is running in, otherwise the pane is
+#      focused on a workspace you cannot see.
+#
+# For (3), sway reports the pid of the process that created the surface — the
+# terminal — not the tmux client inside it, so walk up the client's ancestry
+# until an ancestor matches a container pid.
+#
+# Used as the click action of the notifications from claude-tmux-notify.
+
+set -uo pipefail
+
+pane=${1:-}
+[[ -n $pane ]] || { printf 'usage: %s <pane-id>\n' "${0##*/}" >&2; exit 2; }
+
+# The pane may have gone away between the notification firing and the click.
+target=$(tmux display-message -p -t "$pane" '#{session_name}	#{window_id}' 2>/dev/null) || exit 0
+IFS=$'\t' read -r session window <<<"$target"
+[[ -n ${session:-} && -n ${window:-} ]] || exit 0
+
+# Window ids are global, so this is safe to do before any session switch.
+tmux select-window -t "$window" 2>/dev/null
+tmux select-pane -t "$pane" 2>/dev/null
+
+client=$(tmux list-clients -t "$session" -F '#{client_pid}	#{client_tty}' 2>/dev/null | head -n1)
+if [[ -z $client ]]; then
+  # Nothing attached to that session — commandeer the first client we have.
+  client=$(tmux list-clients -F '#{client_pid}	#{client_tty}' 2>/dev/null | head -n1)
+  [[ -n $client ]] || exit 0
+  tmux switch-client -c "${client#*$'\t'}" -t "$session" 2>/dev/null
+fi
+client_pid=${client%%$'\t'*}
+[[ $client_pid =~ ^[0-9]+$ ]] || exit 0
+
+command -v swaymsg >/dev/null || exit 0
+cons=$(swaymsg -t get_tree 2>/dev/null \
+  | jq -r '.. | objects | select(.pid? != null) | "\(.pid) \(.id)"') || exit 0
+
+p=$client_pid
+while [[ -n $p && $p != 1 && $p != 0 ]]; do
+  con=$(awk -v want="$p" '$1 == want { print $2; exit }' <<<"$cons")
+  if [[ -n $con ]]; then
+    swaymsg "[con_id=$con] focus" >/dev/null 2>&1
+    exit 0
+  fi
+  p=$(ps -o ppid= -p "$p" 2>/dev/null | tr -d ' ')
+done

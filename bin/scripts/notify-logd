@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# Notification log daemon — record every desktop notification, so a toast that
+# expires before it is read isn't lost.
+#
+# mako's own history buffer is no use for this: makoctl can only `restore` the
+# single most recent entry, there is no command to list history, and
+# max-history defaults to 5. So rather than asking the daemon, eavesdrop on the
+# bus. `busctl --user monitor` reports every
+# org.freedesktop.Notifications.Notify method call as one JSON line whoever the
+# serving daemon happens to be, and eavesdropping needs no bus name of its own
+# (mako owns org.freedesktop.Notifications and there can only be one owner).
+#
+# Notify's argument list is
+#   (app_name, replaces_id, app_icon, summary, body, actions, hints, timeout)
+# so payload.data indices 0/3/4/6 are the interesting ones.
+#
+# An entry carrying an x-canonical-private-synchronous hint replaces the
+# previous entry with the same tag instead of stacking, mirroring what that
+# hint asks the daemon to do on screen. Without it, volume/brightness OSDs and
+# repeated alerts from one Claude session would bury everything else.
+
+set -uo pipefail
+
+STATE=${XDG_STATE_HOME:-$HOME/.local/state}/notify-log
+LOG=$STATE/log.jsonl
+MAX=${NOTIFY_LOG_MAX:-500}
+
+mkdir -p "$STATE"
+: >>"$LOG"
+
+# fromjson? rather than plain decoding: a malformed or unexpected monitor line
+# is skipped instead of killing the daemon. --unbuffered so entries reach the
+# log as they happen rather than sitting in jq's output buffer.
+busctl --user monitor --json=short 2>/dev/null \
+  | jq -cR --unbuffered '
+      fromjson?
+      | select(.type == "method_call"
+               and .interface == "org.freedesktop.Notifications"
+               and .member == "Notify")
+      | .payload.data as $d
+      | {
+          t:       ((.["timestamp-realtime"] // 0) / 1000000 | floor),
+          app:     ($d[0] // ""),
+          summary: ($d[3] // ""),
+          body:    ($d[4] // ""),
+          urgency: ($d[6].urgency.data // 1),
+          tag:     ($d[6]["x-canonical-private-synchronous"].data // "")
+        }' \
+  | while IFS= read -r entry; do
+      tag=$(jq -r '.tag // ""' <<<"$entry" 2>/dev/null)
+      if [[ -n $tag ]] \
+        && [[ $tag == "$(tail -n1 "$LOG" 2>/dev/null | jq -r '.tag // ""' 2>/dev/null)" ]]; then
+        sed -i '$d' "$LOG"
+      fi
+      printf '%s\n' "$entry" >>"$LOG"
+      if (( $(wc -l <"$LOG") > MAX )); then
+        tail -n "$MAX" "$LOG" >"$LOG.tmp" && mv "$LOG.tmp" "$LOG"
+      fi
+    done

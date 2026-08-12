@@ -1,0 +1,28 @@
+# mako — notification daemon for Sway.
+
+sort=-time
+layer=overlay
+background-color=#2e3440
+width=300
+height=110
+border-size=2
+border-color=#88c0d0
+border-radius=15
+icons=0
+max-icon-size=64
+default-timeout=5000
+font=monospace 10
+
+[urgency=low]
+border-color=#cccccc
+
+[urgency=normal]
+border-color=#d08770
+
+[urgency=critical]
+border-color=#bf616a
+default-timeout=10000
+
+[category=mpd]
+default-timeout=2000
+group-by=category

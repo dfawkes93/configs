@@ -1,0 +1,26 @@
+[Unit]
+# Office wifi (21CS_SECURE_WIFI) authorises by registered MAC address. Without
+# it the controller declines authentication at the SAE commit with status 37
+# (REQUEST_DECLINED) on every band, which looks nothing like a MAC problem.
+#
+# cloned-mac-address persists in NM's keyfile, so this unit is only belt-and-braces:
+# it re-asserts the MAC if the profile is ever recreated, and keeps the registered
+# value recorded in this repo (NM keyfiles live in /etc/NetworkManager and are not
+# stowed).
+Description=Force 21CS_SECURE_WIFI to the registered MAC address
+After=NetworkManager.service
+Requires=NetworkManager.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# Without this the unit races NM's profile load and dies with
+# "Error: unknown connection '21CS_SECURE_WIFI'".
+ExecStartPre=/usr/bin/nm-online -s -q --timeout=30
+# Set the property only — do NOT "nmcli con up" here. Bringing the connection up
+# fails anywhere the SSID is out of range (home, hotels), marking the unit failed
+# on every such boot. NM's own autoconnect joins it when the network is in range.
+ExecStart=/usr/bin/nmcli con modify 21CS_SECURE_WIFI wifi.cloned-mac-address 7A:74:11:BE:8E:E7
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=Desktop notification log
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=%h/.local/scripts/notify-logd
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target

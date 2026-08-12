@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+# Read the notification log written by notify-logd.
+#
+#   count       number of unread entries — the sway-status bell block polls this
+#   show        open the picker in a floating terminal (default)
+#   mark-read   mark everything as read
+#   clear       empty the log
+#   _pick       the fzf UI itself; runs inside that terminal
+#   _preview N  full text of entry N, for fzf's preview pane
+#
+# The picker is fzf in a terminal rather than fuzzel, because the whole point is
+# reading a message you missed: fzf's preview pane shows the full wrapped body,
+# where fuzzel's dmenu mode can only ever show one truncated line per entry.
+#
+# The preview sits at the bottom rather than the side so that both panes get the
+# full window width. A side preview confines the list — and with it --header and
+# --footer, which are drawn inside the list pane, not across the window — to
+# whatever is left over, which truncates the keybind legend and cramps the body
+# to about half the columns.
+#
+# "Read" is a high-water mark timestamp rather than per-entry state, which is all
+# a scrollback needs and keeps the log append-only. Closing the picker marks
+# everything read, so the bell clears by looking at it.
+
+set -uo pipefail
+
+SELF=$(readlink -f -- "$0")
+STATE=${XDG_STATE_HOME:-$HOME/.local/state}/notify-log
+LOG=$STATE/log.jsonl
+SEEN=$STATE/last-read
+
+last_read() {
+  local v
+  v=$(cat "$SEEN" 2>/dev/null)
+  [[ $v =~ ^[0-9]+$ ]] && printf '%s' "$v" || printf '0'
+}
+
+mark_read() { date +%s >"$SEEN"; }
+
+count() {
+  [[ -s $LOG ]] || { printf '0'; return; }
+  jq -s --argjson since "$(last_read)" \
+    '[.[] | select(.t > $since)] | length' "$LOG" 2>/dev/null || printf '0'
+}
+
+# Spawn the terminal:
+#   --class notify-log  so sway can float and centre it (see sway/config)
+#   /bin/sh -c          not the login shell — .zshrc auto-attaches tmux when
+#                       DISPLAY is set and TMUX is empty, and this window must
+#                       not land inside a tmux session
+#   setsid -f           detach from swaybar's status_command, so the picker
+#                       survives the bar being restarted
+show() {
+  if ! command -v fzf >/dev/null || ! command -v alacritty >/dev/null; then
+    notify-send -a notify-log -t 5000 'Notification log' 'Needs fzf and alacritty.'
+    return 1
+  fi
+  setsid -f alacritty --class notify-log \
+    -e /bin/sh -c "exec $(printf '%q' "$SELF") _pick" >/dev/null 2>&1
+}
+
+_preview() {
+  local idx=$1 entry
+  [[ $idx =~ ^[0-9]+$ ]] || return 0
+  [[ -s $LOG ]] || return 0
+  entry=$(jq -s --argjson i "$idx" 'reverse | .[$i] // empty' "$LOG" 2>/dev/null)
+  [[ -n $entry ]] || return 0
+  printf '%s\n%s · %s\n\n%s\n\n%s\n' \
+    "$(jq -r '.t | strflocaltime("%a %d %b %H:%M:%S")' <<<"$entry")" \
+    "$(jq -r '.app' <<<"$entry")" \
+    "$(jq -r 'if .urgency == 2 then "critical" elif .urgency == 0 then "low" else "normal" end' <<<"$entry")" \
+    "$(jq -r '.summary' <<<"$entry")" \
+    "$(jq -r '.body' <<<"$entry")"
+}
+
+_pick() {
+  if [[ ! -s $LOG ]]; then
+    printf '\n  Notification log is empty.\n\n  Press enter to close…'
+    read -r _ || true
+    return 0
+  fi
+
+  # Field 1 is the entry's index into the reversed log, hidden from the list by
+  # --with-nth but passed to the preview command as {1}.
+  local lines
+  lines=$(jq -rs --argjson since "$(last_read)" '
+      reverse | to_entries[]
+      | [ (.key | tostring),
+          ((if .value.t > $since then "●" else " " end)
+           + " " + (.value.t | strflocaltime("%H:%M"))
+           + " " + (if .value.urgency == 2 then "!" elif .value.urgency == 0 then "·" else " " end)
+           + " " + (.value.app | .[0:12])
+           + "  " + .value.summary)
+        ] | @tsv' "$LOG" 2>/dev/null)
+
+  local sel idx entry
+  sel=$(printf '%s\n' "$lines" | fzf \
+    --delimiter=$'\t' --with-nth=2.. \
+    --preview="$(printf '%q' "$SELF") _preview {1}" \
+    --preview-window='bottom,50%,wrap' \
+    --layout=reverse \
+    --prompt='notif ▸ ' \
+    --header='enter: copy · ctrl-r: mark all read · ctrl-x: clear log' \
+    --bind="ctrl-r:execute-silent($(printf '%q' "$SELF") mark-read)+abort" \
+    --bind="ctrl-x:execute-silent($(printf '%q' "$SELF") clear)+abort" \
+    --no-multi) || { mark_read; return 0; }
+
+  idx=${sel%%$'\t'*}
+  if [[ $idx =~ ^[0-9]+$ ]]; then
+    entry=$(jq -s --argjson i "$idx" 'reverse | .[$i]' "$LOG" 2>/dev/null)
+    if [[ -n $entry ]] && command -v wl-copy >/dev/null; then
+      printf '%s\n%s\n' \
+        "$(jq -r '.summary' <<<"$entry")" "$(jq -r '.body' <<<"$entry")" | wl-copy
+    fi
+  fi
+  mark_read
+}
+
+case "${1:-show}" in
+  count)     count ;;
+  show)      show ;;
+  mark-read) mark_read ;;
+  clear)     : >"$LOG"; mark_read ;;
+  _pick)     _pick ;;
+  _preview)  _preview "${2:-}" ;;
+  *) printf 'usage: %s [count|show|mark-read|clear]\n' "${0##*/}" >&2; exit 2 ;;
+esac

@@ -34,6 +34,7 @@ zsh_add_file "zsh-prompt"
 export EDITOR="nvim"
 
 zsh_add_file "zsh-local"
+zsh_add_file "zsh-secrets"
 
 # Plugins
 zsh_add_plugin "zsh-users/zsh-autosuggestions"

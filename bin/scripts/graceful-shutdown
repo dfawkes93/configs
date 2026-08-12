@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Gracefully stop graphical apps, then reboot or power off.
+#
+# Invoked from nwg-bar (nwg-bar/bar.json). nwg-bar splits each "exec" string on
+# spaces and execs it directly — no shell — so it can't run a ";"-chained
+# command. This wrapper is a single space-free token in bar.json; the action
+# ("reboot" / "poweroff") is one argument.
+#
+# uwsm puts GUI apps in app-graphical.slice; stopping it lets them exit cleanly
+# (SIGTERM, save state) before the system goes down. sway and nwg-bar live in
+# wayland-wm@sway.service, not this slice, so this script survives the stop.
+set -uo pipefail
+
+systemctl --user stop app-graphical.slice || true
+
+case "${1:-}" in
+    reboot)   exec systemctl reboot ;;
+    poweroff) exec systemctl -i poweroff ;;
+    *) echo "usage: ${0##*/} {reboot|poweroff}" >&2; exit 1 ;;
+esac

@@ -61,6 +61,15 @@ get_vol_text() {
     fi
 }
 
+get_notif_text() {
+    local n
+    n=$(~/.local/scripts/notify-log count 2>/dev/null)
+    case "$n" in
+        ''|0|*[!0-9]*) printf '󰂜' ;;
+        *)             printf '󰂚 %d' "$n" ;;
+    esac
+}
+
 block() {
     jq -cn --arg name "$1" --arg text "$2" \
         '{"name":$name,"full_text":$text,"separator_block_width":16}'
@@ -72,6 +81,7 @@ print_status() {
     local bat; bat=$(get_bat_text)
     [ -n "$bat" ] && blocks+=("$(block bat "$bat")")
     blocks+=("$(block vol "$(get_vol_text)")")
+    blocks+=("$(block notif "$(get_notif_text)")")
     blocks+=("$(block clock "$(date +'%Y-%m-%d %H:%M:%S')")")
     local IFS=,
     printf '[%s]\n' "${blocks[*]}"
@@ -110,6 +120,8 @@ while IFS= read -r event; do
         vol:3) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
         vol:4) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1.2 ;;
         vol:5) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
+        notif:1) ~/.local/scripts/notify-log show >/dev/null 2>&1 & ;;
+        notif:3) ~/.local/scripts/notify-log mark-read ;;
     esac
     echo . >&3
 done <&4 &

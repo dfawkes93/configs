@@ -11,12 +11,12 @@
   },
   {
     "label": "Reboot",
-    "exec": "systemctl --user stop app-graphical.slice; systemctl reboot",
+    "exec": "/home/dylanf/.local/scripts/graceful-shutdown reboot",
     "icon": "/usr/share/nwg-bar/images/system-reboot.svg"
   },
   {
     "label": "Shutdown",
-    "exec": "systemctl --user stop app-graphical.slice; systemctl -i poweroff",
+    "exec": "/home/dylanf/.local/scripts/graceful-shutdown poweroff",
     "icon": "/usr/share/nwg-bar/images/system-shutdown.svg"
   }
 ]

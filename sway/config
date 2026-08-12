@@ -230,6 +230,11 @@ font pango:Noto Sans 10.000000
 floating_modifier Mod4 normal
 default_border normal 2
 default_floating_border normal 2
+
+# notify-log's picker (bin/scripts/notify-log) sets this app_id so its terminal
+# comes up as a centred floating window rather than tiling into the workspace.
+for_window [app_id="notify-log"] floating enable, resize set 1000 620, move position center
+
 hide_edge_borders none
 focus_wrapping no
 focus_follows_mouse yes
