@@ -48,9 +48,11 @@ cd ~/projects/configs
 ## Editors
 
 ### nvim
-- **Packages:** `neovim` (plus `git`, a C compiler, `ripgrep`, `fd` for Telescope/plugins).
-- **Setup beyond stow:** Lua config with **lazy.nvim**; plugins bootstrap on first launch and
-  are pinned by `lazy-lock.json`. Run `nvim` once and let it sync, or `:Lazy sync`.
+- **Packages:** `neovim` (>= 0.12), `git`, `ripgrep`, `fd`, plus LSP servers: `clang`,
+  `lua-language-server`, `rust-analyzer`, `typescript-language-server`,
+  `vscode-html-languageserver` (each is enabled only if installed).
+- **Setup beyond stow:** plugins via builtin `vim.pack`, pinned by `nvim-pack-lock.json`;
+  first launch prompts to install them. Update with `:lua vim.pack.update()`.
 
 ### vim
 - **Packages:** `vim`. No extra setup.
