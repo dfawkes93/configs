@@ -1,0 +1,51 @@
+#!/bin/bash
+# Safely toggle the monitor's PIP mode (5120x1440 <-> 2560x1440).
+#
+# The nvidia 615 driver can wedge sway inside the kernel if the monitor drops
+# the link while DP-1 is being scanned out at 5120x1440@240. So: disable the
+# output first, wait for the user to press PIP (seen as the output's mode list
+# changing), then enable it again. Times out and re-enables after $TIMEOUT s.
+# Asks for confirmation first (swaynag), since the keybinding blanks the screen.
+
+OUT=${1:-DP-1}
+TIMEOUT=${TIMEOUT:-20}
+
+max_width() {
+    swaymsg -t get_outputs 2>/dev/null |
+        jq -r --arg o "$OUT" 'first(.[] | select(.name == $o) | [.modes[].width] | max) // empty'
+}
+
+before=$(max_width)
+if [[ -z $before ]]; then
+    notify-send "pip-switch" "$OUT not found"
+    exit 1
+fi
+
+# swaynag runs button actions detached, so the choice comes back via a file.
+confirmed=$(mktemp -u "${XDG_RUNTIME_DIR:-/tmp}/pip-switch.XXXXXX")
+swaynag -t warning \
+    -m "Disable $OUT for a PIP switch? Press PIP on the monitor after confirming; it re-enables on the mode change or after ${TIMEOUT}s." \
+    -Z "Disable $OUT" "touch '$confirmed'" \
+    -s Cancel
+for _ in 1 2 3 4 5; do
+    [[ -e $confirmed ]] && break
+    sleep 0.2
+done
+if [[ ! -e $confirmed ]]; then
+    exit 0
+fi
+rm -f "$confirmed"
+
+trap 'swaymsg output "$OUT" enable >/dev/null' EXIT
+swaymsg output "$OUT" disable >/dev/null
+
+deadline=$((SECONDS + TIMEOUT))
+while (( SECONDS < deadline )); do
+    sleep 0.5
+    now=$(max_width)
+    if [[ -n $now && $now != "$before" ]]; then
+        sleep 1  # let the monitor settle before modesetting it
+        exit 0
+    fi
+done
+notify-send "pip-switch" "No mode change within ${TIMEOUT}s, re-enabled $OUT"
