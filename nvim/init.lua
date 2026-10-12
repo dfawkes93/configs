@@ -108,7 +108,16 @@ vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = tr
 
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
-vim.keymap.set('n', '<leader>cf', vim.lsp.buf.format, { desc = 'Format buffer' })
+-- Format via a CLI filter where one is listed for the filetype, else LSP
+local formatters = { json = { 'jq', '.' } }
+vim.keymap.set('n', '<leader>cf', function()
+  local cmd = formatters[vim.bo.filetype]
+  if not cmd then return vim.lsp.buf.format() end
+  local input = table.concat(vim.api.nvim_buf_get_lines(0, 0, -1, false), '\n')
+  local res = vim.system(cmd, { stdin = input, text = true }):wait()
+  if res.code ~= 0 then return vim.notify(res.stderr, vim.log.levels.ERROR) end
+  vim.api.nvim_buf_set_lines(0, 0, -1, false, vim.split(res.stdout:gsub('\n$', ''), '\n'))
+end, { desc = 'Format buffer' })
 
 -- Seamless window/tmux pane navigation (replaces tmux.nvim; pairs with is_vim in tmux.conf)
 for key, dir in pairs { h = 'L', j = 'D', k = 'U', l = 'R' } do
