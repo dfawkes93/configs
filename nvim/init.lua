@@ -11,9 +11,11 @@ vim.pack.add {
   'https://github.com/tpope/vim-sleuth',
   'https://github.com/lewis6991/gitsigns.nvim',
   'https://github.com/kylechui/nvim-surround',
+  'https://github.com/MeanderingProgrammer/render-markdown.nvim',
 }
 
 require('nvim-surround').setup()
+require('render-markdown').setup {}
 
 require('gitsigns').setup {
   signs = {
