@@ -5,3 +5,4 @@ zsh/**/plugins/**
 zsh/**/.zcompdump
 **/*.pem
 zsh/**/zsh-secrets
+systemd/**/*.wants/
