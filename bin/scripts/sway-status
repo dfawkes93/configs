@@ -10,19 +10,33 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
+# Interface names differ per machine (wlan0, wlp3s0, enp4s0, ...), so detect them
+wifi_iface() {
+    local d
+    for d in /sys/class/net/*/wireless; do
+        [ -e "$d" ] && { basename "$(dirname "$d")"; return; }
+    done
+}
+
 get_net_text() {
     # Check wifi via iw
-    local ssid
-    ssid=$(iw dev wlan0 link 2>/dev/null | awk '/SSID:/{print $2}')
-    if [ -n "$ssid" ]; then
-        printf '󰤨 %s' "$ssid"
-        return
+    local iface ssid
+    iface=$(wifi_iface)
+    if [ -n "$iface" ]; then
+        ssid=$(iw dev "$iface" link 2>/dev/null | sed -n 's/^\s*SSID: //p')
+        if [ -n "$ssid" ]; then
+            printf '󰤨 %s' "$ssid"
+            return
+        fi
     fi
-    # Check ethernet
-    if ip link show enp4s0 2>/dev/null | grep -q "state UP"; then
-        printf '󰈀 eth'
-        return
-    fi
+    # Check ethernet: any physical, non-wireless interface that is up
+    for iface in /sys/class/net/*; do
+        [ -e "$iface/device" ] && [ ! -e "$iface/wireless" ] || continue
+        if [ "$(cat "$iface/operstate" 2>/dev/null)" = "up" ]; then
+            printf '󰈀 eth'
+            return
+        fi
+    done
     printf '󰤮 offline'
 }
 
@@ -115,7 +129,7 @@ while IFS= read -r event; do
     name=$(jq -r '.name // empty' <<< "$event" 2>/dev/null)
     button=$(jq -r '.button // empty' <<< "$event" 2>/dev/null)
     case "$name:$button" in
-        net:1) alacritty -e wpa_cli -i wlan0 >/dev/null 2>&1 & ;;
+        net:1) alacritty -e wpa_cli -i "$(wifi_iface)" >/dev/null 2>&1 & ;;
         vol:1) pavucontrol >/dev/null 2>&1 & ;;
         vol:3) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
         vol:4) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1.2 ;;
