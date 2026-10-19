@@ -11,12 +11,12 @@
   },
   {
     "label": "Reboot",
-    "exec": "/home/dylanf/.local/scripts/graceful-shutdown reboot",
+    "exec": "graceful-shutdown reboot",
     "icon": "/usr/share/nwg-bar/images/system-reboot.svg"
   },
   {
     "label": "Shutdown",
-    "exec": "/home/dylanf/.local/scripts/graceful-shutdown poweroff",
+    "exec": "graceful-shutdown poweroff",
     "icon": "/usr/share/nwg-bar/images/system-shutdown.svg"
   }
 ]
