@@ -1,0 +1,47 @@
+#!/bin/bash
+# Pauses lan-mouse while any fullscreen window is active in Sway.
+# Only restarts it if this script was the one that stopped it,
+# so a manually-stopped lan-mouse stays stopped.
+
+stopped_by_us=false
+
+is_fullscreen() {
+    swaymsg -t get_tree 2>/dev/null | jq -e '
+        [.. | objects
+         | select(.type? == "con" or .type? == "floating_con")
+         | select((.fullscreen_mode? // 0) > 0)
+        ] | length > 0
+    ' > /dev/null 2>&1
+}
+
+check() {
+    if is_fullscreen; then
+        if ! $stopped_by_us && systemctl --user is-active --quiet lan-mouse.service; then
+            systemctl --user stop lan-mouse.service
+            stopped_by_us=true
+        fi
+    else
+        if $stopped_by_us; then
+            systemctl --user start lan-mouse.service
+            stopped_by_us=false
+        fi
+    fi
+}
+
+check
+
+while IFS= read -r event; do
+    # Skip the multi-line success handshake lines
+    [[ "$event" != "{"* ]] && continue
+    # close events race with the tree update — the closed window is still present
+    # in get_tree at the time the event fires, so use the event's own container data
+    if jq -e '.change == "close" and (.container.fullscreen_mode // 0) > 0' \
+            <<< "$event" > /dev/null 2>&1; then
+        if $stopped_by_us; then
+            systemctl --user start lan-mouse.service
+            stopped_by_us=false
+        fi
+    else
+        check
+    fi
+done < <(swaymsg -t subscribe '["window", "workspace"]' --raw)

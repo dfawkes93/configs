@@ -273,7 +273,10 @@ Stowed to `~/.config/systemd/`. After stowing, reload and enable what you need:
 ```sh
 systemctl --user daemon-reload
 systemctl --user enable --now lan-mouse        # systemd/user/lan-mouse.service
+systemctl --user enable --now lan-mouse-guard  # pauses lan-mouse while a window is fullscreen
 ```
+- `~/.config/systemd/user` is a folded stow symlink into this repo, so `systemctl --user
+  enable` writes its `*.wants/` symlinks here. Those are per-machine and gitignored.
 - `systemd/maccy.service` — **system unit, not user.** Re-asserts the registered MAC
   address on the `21CS_SECURE_WIFI` NM profile. **Setup beyond stow:** `stow-all` stows
   `systemd/` to `~/.config/systemd/`, where a system unit is inert — it must be installed
