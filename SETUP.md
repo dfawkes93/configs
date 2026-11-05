@@ -153,7 +153,8 @@ no idea tmux exists and tmux has no idea Claude Code does. The tmux half lives i
   "statusLine": { "type": "command", "command": "~/.local/scripts/claude-statusline" },
   "hooks": {
     "SessionStart":  [ { "hooks": [ { "type": "command", "command": "~/.local/scripts/claude-session-title" } ] } ],
-    "Notification":  [ { "hooks": [ { "type": "command", "command": "~/.local/scripts/claude-tmux-notify"  } ] } ]
+    "Notification":  [ { "hooks": [ { "type": "command", "command": "~/.local/scripts/claude-tmux-notify"  } ] } ],
+    "Stop":          [ { "hooks": [ { "type": "command", "command": "~/.local/scripts/claude-worklog hook" } ] } ]
   }
 }
 ```
@@ -183,6 +184,11 @@ no idea tmux exists and tmux has no idea Claude Code does. The tmux half lives i
   view toggles grouping between state and directory.
 - `claude-statusline` — shows tmux session / project / branch / model / context %, so two
   panes side by side are never confused for each other.
+- `claude-worklog` — `Stop` hook plus viewer, for keeping track of many projects at once.
+  After every turn it rewrites one record per session in `~/.local/state/claude-worklog/`
+  (project, branch, uncommitted count, title, last prompt, tail of the last reply — no model
+  calls). `claude-worklog [DAYS]` lists the latest session per project; `-a` lists every
+  session; `--json` gives raw records for a script or a Claude session to summarise.
 - `allow-passthrough on` and the `extended-keys` lines in `tmux.conf` are required
   regardless: without them tmux swallows Claude Code's notification and progress escapes,
   and Shift+Enter submits instead of inserting a newline. Alacritty additionally needs a

@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# Work log across Claude Code sessions: which projects were touched, when, and
+# where each one was left off.
+#
+#   claude-worklog hook          `Stop` hook — snapshot this session (stdin payload)
+#   claude-worklog [DAYS]        latest session per project, last DAYS days (default 7)
+#   claude-worklog -a [DAYS]     every session, not just the latest per project
+#   claude-worklog --json [DAYS] raw records, for scripts or a Claude session to read
+#
+# One record per session in ~/.local/state/claude-worklog/<session_id>.json,
+# rewritten at the end of every turn, so "left off" is always the last thing
+# said even when the session is never formally ended (tmux panes live for days).
+# No model calls: "left off" is the tail of the last assistant reply, which in
+# background jobs ends with a `result:` / `needs input:` line anyway.
+
+set -uo pipefail
+
+dir=${XDG_STATE_HOME:-$HOME/.local/state}/claude-worklog
+mkdir -p "$dir"
+
+snapshot() {
+  local payload sid transcript cwd root project branch tmux_session dirty
+  payload=$(cat)
+  sid=$(jq -r '.session_id // empty' <<<"$payload")
+  transcript=$(jq -r '.transcript_path // empty' <<<"$payload")
+  cwd=$(jq -r '.cwd // empty' <<<"$payload")
+  [[ -n $sid && -r $transcript ]] || exit 0
+
+  root=$(git -C "$cwd" rev-parse --show-toplevel 2>/dev/null) || root=$cwd
+  project=$(basename "$root")
+  branch=$(git -C "$cwd" branch --show-current 2>/dev/null)
+  dirty=$(git -C "$cwd" status --porcelain 2>/dev/null | wc -l)
+  tmux_session=
+  if [[ -n ${TMUX_PANE:-} ]] && command -v tmux >/dev/null; then
+    tmux_session=$(tmux display-message -p -t "$TMUX_PANE" '#S' 2>/dev/null)
+  fi
+
+  # Transcripts grow to megabytes; the head gives the start time, the tail the
+  # latest exchange, and grep the (possibly renamed) title.
+  local started title
+  started=$(head -n 50 "$transcript" | jq -r 'select(.timestamp) | .timestamp' 2>/dev/null | head -n 1)
+  title=$(grep -E '"type":"(custom-title|ai-title)"' "$transcript" | tail -n 1 |
+    jq -r '.customTitle // .aiTitle // empty' 2>/dev/null)
+
+  # Stop fires before the final reply is flushed to the transcript, so take
+  # that reply (and "now") from the payload; the transcript only fills gaps.
+  local last now
+  last=$(jq -r '.last_assistant_message // empty' <<<"$payload")
+  now=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+  tail -n 400 "$transcript" | jq -s -c \
+    --arg last "$last" --arg now "$now" --arg sid "$sid" --arg cwd "$cwd" --arg root "$root" --arg project "$project" \
+    --arg branch "$branch" --arg tmux "$tmux_session" --arg title "$title" \
+    --arg started "$started" --argjson dirty "${dirty:-0}" '
+    def clip(n): gsub("\\s+"; " ") | if length > n then .[0:n] + "…" else . end;
+    def tailclip(n): gsub("\\s+"; " ") | if length > n then "…" + .[-n:] else . end;
+    [ .[] | select(.isSidechain != true) ] as $e
+    | ([ $e[] | select(.type == "user" and (.message.content | type) == "string"
+                       and .isMeta != true
+                       and (.message.content | startswith("<") | not)) ] | last) as $u
+    | ([ $e[] | select(.type == "assistant")
+               | {ts: .timestamp, text: ([.message.content[]? | select(.type == "text") | .text] | join("\n"))}
+               | select(.text != "") ] | last
+       | if $last != "" then {ts: $now, text: $last} else . end) as $a
+    | ($a.text // "" | [splits("\n")] | map(select(test("^(result|needs input|failed):"))) | last) as $status
+    | {
+        session_id: $sid, project: $project, root: $root, cwd: $cwd,
+        branch: $branch, tmux: $tmux, title: $title, dirty: $dirty,
+        started: (if $started == "" then null else $started end),
+        last_active: ($a.ts // ($e | map(.timestamp // empty) | last)),
+        last_prompt: ($u.message.content // "" | clip(200)),
+        status: $status,
+        left_off: ($a.text // "" | tailclip(400))
+      }' >"$dir/$sid.json.tmp" && mv "$dir/$sid.json.tmp" "$dir/$sid.json"
+}
+
+records() {
+  local days=$1
+  find "$dir" -name '*.json' -mtime "-$days" -print0 | xargs -0r cat |
+    jq -s 'sort_by(.last_active) | reverse'
+}
+
+show() {
+  local all=$1 days=$2
+  records "$days" | jq -r --argjson all "$all" --argjson now "$(date +%s)" '
+    def ago: ($now - (sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601)) as $s
+      | if $s < 3600 then "\($s / 60 | floor)m ago"
+        elif $s < 86400 then "\($s / 3600 | floor)h ago"
+        else "\($s / 86400 | floor)d ago" end;
+    (if $all then . else group_by(.project) | map(max_by(.last_active)) | sort_by(.last_active) | reverse end)
+    | .[]
+    | "\u001b[1m\(.project)\u001b[0m  \(.last_active | ago)"
+      + (if .branch != "" then "  [\(.branch)]" else "" end)
+      + (if .dirty > 0 then "  \(.dirty) uncommitted" else "" end)
+      + (if .title != "" then "\n  \u001b[2m\(.title)\u001b[0m" else "" end)
+      + "\n  asked:    \(.last_prompt)"
+      + "\n  left off: \(.status // .left_off)\n"'
+}
+
+case ${1:-} in
+  hook) snapshot ;;
+  --json) records "${2:-7}" ;;
+  -a) show true "${2:-7}" ;;
+  *) show false "${1:-7}" ;;
+esac
