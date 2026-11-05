@@ -40,3 +40,6 @@ live_config_reload = true
 import = ["~/.config/alacritty/local.toml"]
 
 [terminal]
+
+[scrolling]
+multiplier = 5
