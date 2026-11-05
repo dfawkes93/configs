@@ -1,0 +1,25 @@
+! IBM Hursley WINMVS4E (converted from PCOMM profile WINMVS4E.ws)
+! L: = direct TLS on connect (PCOMM Security=Y, port 992).
+c3270.hostname: L:winmvs4e.hursley.ibm.com:992
+! Matches PCOMM "Pass through host certificate validation": the server cert is
+! signed by "IBM INTERNAL INTERMEDIATE CA" (not in the system trust store, and
+! the chain is not sent). No MITM protection. To verify instead, remove the
+! next line and set c3270.caFile to a PEM with that CA and its root.
+c3270.verifyHostCert: false
+! PCOMM HostCodePage=037-U
+c3270.codePage: cp037
+! PCOMM ScreenSize=62x160
+c3270.model: 3279-4-E
+c3270.oversize: 160x62
+c3270.crosshair: false
+c3270.reconnect: true
+c3270.keymap: /home/dylanf/c3270.keymap
+c3270.menuBar: false
+c3270.defaultFgBg: true
+c3270.macros: \
+ swap1: Home() String("swap 1") Enter()\n\
+ swap2: Home() String("swap 2") Enter()\n\
+ swap3: Home() String("swap 3") Enter()\n\
+ swap4: Home() String("swap 4") Enter()\n\
+ swap5: Home() String("swap 5") Enter()\n\
+ psc: Escape() Script(-interactive,psc-3270)
