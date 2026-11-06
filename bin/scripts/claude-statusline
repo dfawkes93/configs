@@ -10,6 +10,10 @@
 set -uo pipefail
 
 payload=$(cat)
+
+# Feed the 5 h / weekly usage to the e-ink bridge (no-op if it isn't installed).
+eink_hook=$HOME/.local/share/claude-eink/eink_hook.py
+[[ -f $eink_hook ]] && { printf '%s' "$payload" | python3 -I "$eink_hook" --statusline >/dev/null 2>&1 & } 2>/dev/null
 model=$(jq -r '.model.display_name // "?"' <<<"$payload")
 dir=$(jq -r '.workspace.current_dir // ""' <<<"$payload")
 pct=$(jq -r '.context_window.used_percentage // 0' <<<"$payload" | cut -d. -f1)
