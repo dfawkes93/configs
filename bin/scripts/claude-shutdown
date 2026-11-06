@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Gracefully stop every Claude Code session running in a tmux pane.
+#
+#   claude-shutdown        list sessions, confirm, stop the idle ones
+#   claude-shutdown -n     dry run: list only
+#   claude-shutdown -f     also stop busy sessions (interrupts the current turn)
+#   claude-shutdown -y     do not ask for confirmation
+#   claude-shutdown -s RE  only tmux sessions whose name matches the regex RE
+#
+# Sends SIGTERM to each claude process. Claude Code exits cleanly on SIGTERM and
+# runs its SessionEnd hooks (reason "other"), so ~/projects/org/bin/sync-session
+# still syncs each session. It does not type /exit: that would submit any
+# unsent draft in the input box. Background jobs outside tmux are not touched.
+set -uo pipefail
+
+dry=0 force=0 yes=0 only=
+while getopts nfys:h opt; do
+  case $opt in
+    n) dry=1 ;; f) force=1 ;; y) yes=1 ;; s) only=$OPTARG ;;
+    *) sed -n '2,14p' "$0"; exit 0 ;;
+  esac
+done
+
+command -v tmux >/dev/null && tmux list-sessions >/dev/null 2>&1 || { echo "No tmux server."; exit 0; }
+
+# PIDs of this script's ancestors, so a session never stops itself (e.g. via `!`).
+ancestors=" "
+p=$$
+while [[ $p -gt 1 ]]; do ancestors+="$p "; p=$(ps -o ppid= -p "$p" | tr -d ' '); [[ -n $p ]] || break; done
+
+targets=() ; skipped=0
+printf '%-28s %-8s %-6s %s\n' PANE PID STATE NOTE
+while IFS=' ' read -r pane where pane_pid cmd; do
+  [[ $cmd == claude ]] || continue
+  [[ -z $only || ${where%%:*} =~ $only ]] || continue
+  if [[ $(ps -o comm= -p "$pane_pid") == claude ]]; then pid=$pane_pid
+  else pid=$(pgrep -P "$pane_pid" -x claude | head -1); fi
+  [[ -n $pid ]] || continue
+
+  screen=$(tmux capture-pane -p -t "$pane" | grep -v '^[[:space:]]*$' | tail -15)
+  state=idle note=
+  if grep -qE '…[[:space:]]*\([0-9]+[hms]|queued messages' <<<"$screen"; then state=busy; fi
+  draft=$(grep -E '^❯ ' <<<"$screen" | tail -1 | sed 's/^❯ //')
+  [[ -n $draft && $draft != "Press up"* ]] && note="draft lost: ${draft:0:40}"
+
+  if [[ $ancestors == *" $pid "* ]]; then state=self note="this session, skipped"
+  elif [[ $state == busy && $force == 0 ]]; then note="skipped (use -f)"; ((skipped++))
+  else targets+=("$pid:$where"); fi
+  printf '%-28s %-8s %-6s %s\n' "$where" "$pid" "$state" "$note"
+done < <(tmux list-panes -a -F '#{pane_id} #{session_name}:#{window_index}.#{pane_index} #{pane_pid} #{pane_current_command}')
+
+(( ${#targets[@]} )) || { echo "Nothing to stop."; exit 0; }
+(( dry )) && exit 0
+if (( ! yes )); then
+  read -r -p "Stop ${#targets[@]} session(s)? [y/N] " a
+  [[ $a == [yY]* ]] || exit 1
+fi
+
+for t in "${targets[@]}"; do kill -TERM "${t%%:*}" 2>/dev/null; done
+for t in "${targets[@]}"; do
+  pid=${t%%:*} where=${t#*:}
+  for _ in $(seq 30); do kill -0 "$pid" 2>/dev/null || break; sleep 0.5; done
+  if kill -0 "$pid" 2>/dev/null; then echo "still running: $where (pid $pid)"
+  else echo "stopped: $where"; fi
+done
+(( skipped )) && echo "$skipped busy session(s) left running. Re-run with -f to stop them too."
+echo "Wiki syncs run in the background: tail -f ~/.local/state/org-sync/sync.log"
