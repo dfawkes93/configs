@@ -6,3 +6,5 @@ zsh/**/.zcompdump
 **/*.pem
 zsh/**/zsh-secrets
 systemd/**/*.wants/
+# Claude Code local state (worktrees, session settings)
+/.claude/
