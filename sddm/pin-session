@@ -1,0 +1,24 @@
+#!/bin/sh
+# SDDM [Wayland] SessionCommand wrapper: pin some users to one session regardless
+# of what the greeter has selected, then hand off to SDDM's stock wayland-session.
+#
+# SDDM has no per-user session setting. The session it preselects is global
+# (/var/lib/sddm/state.conf [Last] Session=), so after egg logs into sway the
+# greeter offers sway to everyone, and a user who doesn't know to change it would
+# land in a bare sway with no config.
+#
+# Runs as the logging-in user. SDDM has already set the session variables from
+# the greeter's choice, so they're overridden to match plasma.desktop. logind's
+# own record of the session (loginctl's Desktop=) still shows the greeter's
+# choice; nothing in Plasma reads it.
+#
+# Installed by hand, not stowed. See SETUP.md "SDDM".
+
+case "$(id -un)" in
+    jess)
+        export DESKTOP_SESSION=plasma XDG_SESSION_DESKTOP=KDE XDG_CURRENT_DESKTOP=KDE
+        set -- /usr/lib/plasma-dbus-run-session-if-needed /usr/bin/startplasma-wayland
+        ;;
+esac
+
+exec /usr/share/sddm/scripts/wayland-session "$@"

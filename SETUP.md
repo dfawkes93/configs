@@ -74,6 +74,29 @@ Pick the stack that matches the machine — both are present in the repo.
   the `layer-shell` backend (works fine on wlroots). No action needed unless you want the
   portal backend.
 
+### SDDM (login screen)
+**System files, not stowed.** The session list should offer only the uwsm sessions,
+because `sway/config` runs `exec uwsm finalize`, which only works under `uwsm start`.
+Hide the plain sessions, and stop pacman reinstalling them, by adding this line under
+`[options]` in `/etc/pacman.conf` and then deleting the two files:
+```
+NoExtract = usr/share/wayland-sessions/sway.desktop usr/share/wayland-sessions/hyprland.desktop
+```
+- **Per-user session pinning (`sddm/`).** SDDM preselects whichever session was used
+  last, for *everyone*: `/var/lib/sddm/state.conf` `[Last] Session=` isn't per user.
+  `sddm/pin-session` wraps SDDM's Wayland `SessionCommand` and forces the users listed
+  in its `case` onto a fixed session, whatever the greeter shows. Install it with:
+  ```sh
+  sudo install -Dm755 sddm/pin-session /usr/local/lib/sddm/pin-session
+  sudo install -Dm644 sddm/10-pin-session.conf /etc/sddm.conf.d/10-pin-session.conf
+  ```
+  Re-run the first line after editing the script. It takes effect at the next login,
+  with no SDDM restart needed. If the script is missing or broken, *every* Wayland
+  login fails. To recover, switch to a TTY and delete `/etc/sddm.conf.d/10-pin-session.conf`.
+- **Theme:** `tokyo-night-sddm` (unpackaged, in `/usr/share/sddm/themes`), set in
+  `/etc/sddm.conf`. The user list is the person icon to the left of the username
+  field (or press ↑/← in it).
+
 ### Notifications (mako)
 - **Packages:** `mako` (Wayland only — the X11 stack has no equivalent here).
 - **Setup beyond stow:** none; sway starts it. `makoctl reload` picks up config edits
