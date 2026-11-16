@@ -28,8 +28,8 @@ cd ~/projects/configs
 - **Packages:** `zsh`
 - **Setup beyond stow:** zsh uses `ZDOTDIR=$HOME/.config/zsh` (where the modular
   `.zshrc` / `zsh-*` component files live). That variable must be exported *before* zsh
-  starts, which stow does not bootstrap — set it in `/etc/zsh/zshenv` (or a minimal
-  `~/.zshenv`):
+  starts, which stow does not bootstrap — set it in a minimal `~/.zshenv`. Not
+  `/etc/zsh/zshenv`: that applies to every user's zsh on a multi-user machine.
   ```sh
   export ZDOTDIR="$HOME/.config/zsh"
   ```
