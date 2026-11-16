@@ -1,8 +1,13 @@
 [
   {
     "label": "Lock",
-    "exec": "swaylock -f -c 000000",
+    "exec": "swaylock -f",
     "icon": "/usr/share/nwg-bar/images/system-lock-screen.svg"
+  },
+  {
+    "label": "Switch user",
+    "exec": "switch-user",
+    "icon": "/usr/share/icons/breeze-dark/actions/32/system-switch-user.svg"
   },
   {
     "label": "Logout",

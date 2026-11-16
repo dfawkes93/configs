@@ -30,6 +30,12 @@ set $menu uwsm app -- fuzzel
 # This will lock your screen after 300 seconds of inactivity, then turn off
 # your displays after another 300 seconds, and turn your screens back on when
 # resumed. It will also lock your screen before your computer goes to sleep.
+#
+# No idle timers: output power off wedges the nvidia 615 driver on DPMS wake
+# (NVIDIA/open-gpu-kernel-modules#1371). This only drops the swaylock left by
+# bin/scripts/switch-user once SDDM has already authenticated us back into this
+# session; SDDM asks logind to unlock it, a plain VT switch doesn't.
+exec swayidle unlock 'pkill -USR1 -x -U "$USER" swaylock'
 
 ### Input configuration
 #
@@ -77,6 +83,8 @@ input type:touchpad {
 
     # nwg-bar execs bar.json commands without a shell, so put the scripts dir on its PATH
     bindsym $mod+x exec env PATH="$HOME/.local/scripts:$PATH" nwg-bar
+    # Lock and switch to the SDDM greeter, leaving this session running
+    bindsym $mod+Shift+x exec ~/.local/scripts/switch-user
 #
 # Moving around:
 #
@@ -258,7 +266,7 @@ bindsym Mod4+Shift+f floating toggle
 # bindsym Mod4+Shift+minus move scratchpad
 # bindsym Mod4+Space exec rofi -show drun -modes 'drun,doc:docci'
 bindsym Mod4+Tab workspace back_and_forth
-bindsym $mod+Escape exec swaylock
+bindsym $mod+Escape exec swaylock -f
 # bindsym Mod4+Up focus up
 # bindsym Mod4+minus scratchpad show
 

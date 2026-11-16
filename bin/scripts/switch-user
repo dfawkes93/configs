@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Lock this session, then hand the seat to SDDM's greeter so another user can log
+# in (or go back to their own running session) without this one logging out.
+#
+# Invoked from sway ($mod+Shift+x) and nwg-bar (nwg-bar/bar.json, which finds it
+# via the PATH that sway/config gives nwg-bar).
+#
+# Lock first: the greeter comes up on another VT, and Ctrl+Alt+F<n> back to this
+# one would otherwise land in an unlocked session (sway/config has no idle lock).
+# swaylock -f only forks once the lock surface is up, so the switch can't race it.
+# --grace=0 in case ~/.config/swaylock/config ever sets a grace period, which
+# would let anyone who switches back within it dismiss the lock without a password.
+# Logging back in through SDDM drops the lock: SDDM unlocks the existing logind
+# session, and swayidle in sway/config turns that into SIGUSR1 for swaylock.
+#
+# SwitchToGreeter is SDDM's org.freedesktop.DisplayManager.Seat method — the same
+# call Plasma's "Switch User" makes. SDDM exports the seat's object path to the
+# session as XDG_SEAT_PATH.
+set -euo pipefail
+
+swaylock -f --grace=0
+
+exec busctl --system call org.freedesktop.DisplayManager \
+    "${XDG_SEAT_PATH:-/org/freedesktop/DisplayManager/Seat0}" \
+    org.freedesktop.DisplayManager.Seat SwitchToGreeter
