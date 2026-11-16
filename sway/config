@@ -85,6 +85,8 @@ input type:touchpad {
     bindsym $mod+x exec env PATH="$HOME/.local/scripts:$PATH" nwg-bar
     # Lock and switch to the SDDM greeter, leaving this session running
     bindsym $mod+Shift+x exec ~/.local/scripts/switch-user
+    # Bitwarden picker (rbw + fuzzel); keys documented in bin/scripts/bw-sel
+    bindsym $mod+Ctrl+p exec ~/.local/scripts/bw-sel
 #
 # Moving around:
 #

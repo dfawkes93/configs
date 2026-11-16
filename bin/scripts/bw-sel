@@ -1,12 +1,61 @@
 #!/bin/bash
+# bw-sel — fuzzel picker for the Bitwarden vault (via rbw).
+#
+#   Enter                 copy password
+#   Ctrl+U / Shift+Enter  copy username
+#   Ctrl+T                copy TOTP code
+#   Alt+Enter             type password into the focused window (wtype)
+#
+# Keys live in fuzzel/rbw.ini (custom-N exits with code 9+N).
+# Copied secrets are cleared after $BW_SEL_CLEAR seconds (default 30),
+# but only if the clipboard still holds that secret.
 
-rbw unlocked || rbw unlock || exit 1
-item=$(rbw ls | fuzzel --dmenu --config=$HOME/.config/fuzzel/rbw.ini)
-case "$?" in
-	0) rbw get $item | wl-copy
-	;;
-	17) rbw get --field username $item | wl-copy
-	;;
-	*)
-	;;
+clear_after=${BW_SEL_CLEAR:-30}
+
+die() { notify-send -a bw-sel -u critical "Bitwarden" "$1"; exit 1; }
+
+command -v rbw >/dev/null || die "rbw is not installed"
+rbw unlocked 2>/dev/null || rbw unlock || die "Vault is still locked"
+
+# rbw prints tab-separated fields; build "id<TAB>name · user [folder]" so the
+# picker shows something human and hands back an unambiguous id.
+entries=$(rbw list --fields id,name,user,folder) || die "rbw list failed"
+menu=$(awk -F'\t' '{
+	d = $2
+	if ($3 != "") d = d "  ·  " $3
+	if ($4 != "") d = d "  [" $4 "]"
+	print $1 "\t" d
+}' <<<"$entries" | sort -t$'\t' -k2,2f)
+
+id=$(fuzzel --dmenu --config="$HOME/.config/fuzzel/rbw.ini" \
+	--with-nth=2 --accept-nth=1 <<<"$menu")
+rc=$?
+[[ -n $id ]] || exit 0
+
+name=$(awk -F'\t' -v id="$id" '$1 == id { print $2; exit }' <<<"$entries")
+
+case $rc in
+	0)  what=password;    secret=$(rbw get "$id") ;;
+	17) what=username;    secret=$(rbw get --field username "$id") ;;
+	18) what="TOTP code"; secret=$(rbw code "$id") ;;
+	19)
+		command -v wtype >/dev/null || die "wtype is not installed"
+		secret=$(rbw get "$id")
+		[[ -n $secret ]] || die "No password for $name"
+		sleep 0.2  # let fuzzel's surface go away so focus returns
+		printf '%s' "$secret" | wtype -
+		exit 0
+		;;
+	*)  exit 0 ;;
 esac
+
+[[ -n $secret ]] || die "No $what for $name"
+
+printf '%s' "$secret" | wl-copy
+notify-send -a bw-sel -t 3000 "Bitwarden" "Copied $what for $name (clears in ${clear_after}s)"
+
+(
+	sleep "$clear_after"
+	[[ "$(wl-paste -n 2>/dev/null)" == "$secret" ]] && wl-copy --clear
+) &>/dev/null &
+disown
