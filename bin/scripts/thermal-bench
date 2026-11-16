@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# Quick before/after thermal benchmark for CPU/GPU tuning (power limit, EPP,
+# Curve Optimizer). Samples temps/power once a second while a load runs, then
+# prints a one-line summary and appends it to ~/.local/state/thermal-bench.log.
+#
+#   thermal-bench cpu [label]   runs `7z b` 3x (~1 min), score = avg MIPS
+#   thermal-bench gpu [label]   logs until Ctrl-C; run Superposition meanwhile,
+#                               then type its score when prompted
+#   thermal-bench log           show past results
+#
+# The label is free text, e.g. "baseline" or "pl280 epp-balperf".
+set -uo pipefail
+
+LOG="${XDG_STATE_HOME:-$HOME/.local/state}/thermal-bench.log"
+mode="${1:-}"
+label="${2:-}"
+
+usage() { sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+
+case "$mode" in
+  cpu|gpu) ;;
+  log) [[ -f $LOG ]] && column -t -s $'\t' "$LOG" || echo "no results yet"; exit 0 ;;
+  *) usage ;;
+esac
+
+samples="$(mktemp)"
+trap 'rm -f "$samples"' EXIT
+
+# One sample per second: cpu_tctl gpu_temp gpu_power gpu_clock gpu_fan
+sample_loop() {
+  while :; do
+    cpu=$(sensors -j k10temp-pci-00c3 2>/dev/null \
+          | grep -o '"Tctl":{"temp1_input":[0-9.]*' | grep -o '[0-9.]*$')
+    gpu=$(nvidia-smi --query-gpu=temperature.gpu,power.draw,clocks.gr,fan.speed \
+          --format=csv,noheader,nounits 2>/dev/null | tr -d ' ' | tr ',' ' ')
+    echo "${cpu:-0} ${gpu:-0 0 0 0}" >> "$samples"
+    sleep 1
+  done
+}
+
+settings() {
+  local pl epp
+  pl=$(nvidia-smi --query-gpu=power.limit --format=csv,noheader,nounits 2>/dev/null | cut -d. -f1)
+  epp=$(cat /sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference 2>/dev/null)
+  echo "gpu_pl=${pl}W epp=${epp}"
+}
+
+sample_loop &
+sampler=$!
+trap 'kill "$sampler" 2>/dev/null; rm -f "$samples"' EXIT
+
+if [[ $mode == cpu ]]; then
+  echo "Running 7z b x3 (about a minute)..."
+  scores=()
+  for i in 1 2 3; do
+    s=$(7z b 2>&1 | awk '/^Tot:/ {print $NF}')
+    echo "  run $i: $s MIPS"
+    scores+=("$s")
+  done
+  score=$(printf '%s\n' "${scores[@]}" | awk '{t+=$1} END {printf "%d", t/NR}')
+  unit="MIPS"
+else
+  echo "Logging GPU/CPU sensors. Run Superposition now; press Ctrl-C when it finishes."
+  trap 'true' INT
+  wait "$sampler" 2>/dev/null
+  trap - INT
+  echo
+  read -rp "Superposition score (blank to skip): " score
+  unit="pts"
+fi
+
+kill "$sampler" 2>/dev/null
+wait "$sampler" 2>/dev/null
+
+# Ignore idle samples so averages reflect the loaded period: for gpu mode,
+# only samples with GPU power > 100W; for cpu mode, all samples.
+summary=$(awk -v mode="$mode" '
+  mode=="gpu" && $3 < 100 { next }
+  { n++; ct+=$1; gt+=$2; gp+=$3; gc+=$4; gf+=$5
+    if ($1>cm) cm=$1; if ($2>gm) gm=$2; if ($3>pm) pm=$3 }
+  END {
+    if (!n) { print "no loaded samples"; exit }
+    printf "cpu_avg=%.0fC cpu_peak=%.0fC gpu_avg=%.0fC gpu_peak=%.0fC gpu_pwr_avg=%.0fW gpu_pwr_peak=%.0fW gpu_clk_avg=%.0fMHz gpu_fan_avg=%.0f%% secs=%d",
+      ct/n, cm, gt/n, gm, gp/n, pm, gc/n, gf/n, n
+  }' "$samples")
+
+line="$(date '+%F %R')"$'\t'"$mode"$'\t'"${label:--}"$'\t'"score=${score:--}${score:+ $unit}"$'\t'"$(settings)"$'\t'"$summary"
+mkdir -p "$(dirname "$LOG")"
+echo "$line" >> "$LOG"
+
+echo
+echo "$line" | tr '\t' '\n' | sed '1!s/^/  /'
+echo "Saved to $LOG"
