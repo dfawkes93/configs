@@ -6,7 +6,6 @@ stow_pkg() {
 }
 
 stow_pkg alacritty  "$HOME/.config/alacritty"
-stow_pkg bash       "$HOME/.config/bash"
 stow_pkg bin        "$HOME/.local"
 stow_pkg fuzzel     "$HOME/.config/fuzzel"
 stow_pkg git        "$HOME/.config/git"

@@ -5,7 +5,7 @@ than `./stow-all` — this file documents the ones that **also** require package
 installed, services enabled, or system files changed that stow can't manage.
 
 > Convention: each top-level directory is a stow "package". `./stow-all` symlinks them into
-> `$HOME` (`.stowrc` sets `--target=$HOME`). `c3270`, `windows`, and `scripts` are **not**
+> `$HOME` (`.stowrc` sets `--target=$HOME`). `c3270` and `windows` are **not**
 > stowed. Per-host packages (`host-<hostname>/`) are stowed automatically by `stow-all` when
 > the hostname matches.
 
@@ -336,5 +336,3 @@ systemctl --user enable --now lan-mouse-guard  # pauses lan-mouse while a window
 Not stowed by `stow-all`; handle manually if needed:
 - `c3270` — 3270 terminal emulator config.
 - `windows` — Windows-side config.
-- `scripts` — repo-local helper scripts (`ta`, `conf`, `fix-worktree-remote`, …); run
-  directly from the repo, they are intentionally not symlinked.
