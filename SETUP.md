@@ -99,14 +99,20 @@ NoExtract = usr/share/wayland-sessions/sway.desktop usr/share/wayland-sessions/h
 
 ### Notifications (mako)
 - **Packages:** `mako` (Wayland only — the X11 stack has no equivalent here).
-- **Setup beyond stow:** none; sway starts it. `makoctl reload` picks up config edits
-  without a restart.
-- The config exists mainly to set `default-timeout=10000`. mako's own default is **0**,
-  which means notifications never expire and accumulate until dismissed by hand.
-- ⚠️ `ignore-timeout=1` makes mako **discard** the expire timeout a sender asks for and use
-  `default-timeout` for everything. Set it back to `0` if per-sender timeouts should win
-  (`claude-tmux-notify` asks for 8s/4s). Note also that mako's urgency criteria are
-  `low`/`normal`/`critical` — a `[urgency=high]` section matches nothing.
+- **Setup beyond stow:** none; `sway/config` starts it with `exec mako`. `makoctl reload`
+  picks up config edits without a restart.
+- Started explicitly, not left to D-Bus activation. Any installed notification daemon
+  ships a *global* `org.freedesktop.Notifications` activation file (dunst did, and was
+  silently what sway used until it was removed), and whichever one D-Bus picks wins.
+- ⚠️ **Other users on a Plasma session:** mako's activation file points at `mako.service`,
+  whose only condition is `$WAYLAND_DISPLAY`. Plasma on Wayland passes that, so a
+  notification sent before plasmashell is up can start mako there and take over the bus.
+  Mask it for each Plasma user, logged in as that user: `systemctl --user mask mako.service`.
+- The config sets `default-timeout=5000` (10000 for `critical`). mako's own default is
+  **0**, which means notifications never expire and accumulate until dismissed by hand.
+  Senders' own expire timeouts still win (`claude-tmux-notify` asks for 8s/4s); setting
+  `ignore-timeout=1` would make `default-timeout` apply to everything. mako's urgency
+  criteria are `low`/`normal`/`critical`: a `[urgency=high]` section matches nothing.
 
 ### Notification log (`notify-logd` + bar bell)
 

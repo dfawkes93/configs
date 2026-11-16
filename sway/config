@@ -277,3 +277,7 @@ include /etc/sway/config.d/*
 
 exec uwsm finalize
 
+# Start mako explicitly rather than relying on D-Bus activation, so this session
+# never depends on (or races) whichever notification daemon a global
+# org.freedesktop.Notifications activation file points at.
+exec mako
